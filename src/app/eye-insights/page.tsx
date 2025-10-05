@@ -14,6 +14,7 @@ export default function EyeInsightsPage() {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   const toggleOther = (checked: boolean) => {
     setOtherSelected(checked);
@@ -223,8 +224,29 @@ export default function EyeInsightsPage() {
           />
         </div>
 
+        <div className="eye-insights__consent">
+          <label className="eye-insights__consent-control">
+            <input
+              className="eye-insights__consent-checkbox"
+              type="checkbox"
+              checked={consentChecked}
+              onChange={(event) => setConsentChecked(event.target.checked)}
+            />
+            <span className="eye-insights__consent-copy">
+              I confirm that I own these images and consent to their use for HealthSight eye insight research.
+            </span>
+          </label>
+          <p className="eye-insights__consent-hint">
+            Your files remain encrypted and may be deleted at any time.
+          </p>
+        </div>
+
         <div className="eye-insights__actions">
-          <button className="eye-insights__save" type="button">
+          <button
+            className={`eye-insights__save${consentChecked ? '' : ' eye-insights__save--disabled'}`}
+            type="button"
+            disabled={!consentChecked}
+          >
             Save
           </button>
         </div>
