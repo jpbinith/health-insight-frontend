@@ -5,7 +5,6 @@
 @use 'generic/base';
 @use 'elements/typography' as typographyElements;
 @use 'objects/layout';
-@use 'objects/panels';
 @use 'components/header';
 @use 'components/hero';
 @use 'components/badge';
@@ -13,7 +12,6 @@
 @use 'components/button';
 @use 'components/note';
 @use 'components/feature-step';
-@use 'components/form';
-@use 'components/dropzone';
 @use 'components/footer';
+@use 'pages/eye_insights';
 @use 'utilities/visually-hidden';

@@ -5,6 +5,10 @@
 .c-header {
   padding-block: 1.5rem;
   border-bottom: 1px solid rgba(colors.$color-text-primary, 0.06);
+  background-color: colors.$color-surface-light;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .c-header__inner {
