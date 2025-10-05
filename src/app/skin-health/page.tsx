@@ -8,31 +8,31 @@ export default function SkinHealthPage() {
   const hasSelection = selectedFiles.length > 0;
 
   return (
-    <section className="skin-upload">
-      <div className="skin-upload__inner">
-        <div className="skin-upload__intro">
-          <span className="skin-upload__badge">Skin Health Analysis</span>
-          <h1 className="skin-upload__title">Upload Your Skin Image</h1>
-          <p className="skin-upload__subtitle">
+    <section className="analysis-page skin-upload">
+      <div className="analysis-page__inner">
+        <header className="analysis-page__intro">
+          <span className="analysis-page__badge analysis-page__badge--blue">Skin Health Analysis</span>
+          <h1 className="analysis-page__title">Upload Your Skin Image</h1>
+          <p className="analysis-page__subtitle">
             Get AI-powered insights into your skin. For best results, use a clear, well-lit photo.
           </p>
-        </div>
+        </header>
 
-        <div className="skin-upload__card">
+        <div className="analysis-card">
           <ImageUploader
             accept="image/*"
             title="Upload Image"
-            prompt="Drag and drop or click to upload"
+            prompt="Drag & drop your image here, or click to upload"
             helperText="Supports: JPG, JPEG, PNG"
             hideDropzoneOnSelection
             showPreviewImage
             onChange={setSelectedFiles}
-            className="skin-upload__uploader"
+            className="analysis-card__uploader analysis-card__uploader--skin"
           />
 
           <button
             type="button"
-            className={`skin-upload__submit${hasSelection ? ' skin-upload__submit--enabled' : ''}`}
+            className={`analysis-card__cta${hasSelection ? ' analysis-card__cta--enabled' : ''}`}
             disabled={!hasSelection}
           >
             Start Analysis
@@ -51,7 +51,7 @@ export default function SkinHealthPage() {
           </button>
         </div>
 
-        <p className="skin-upload__disclaimer">
+        <p className="analysis-page__disclaimer">
           <strong>Disclaimer:</strong> HealthSight provides informational insights and is not a substitute for professional
           medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider with any questions you may
           have regarding a medical condition.
