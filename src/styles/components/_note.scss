@@ -1,0 +1,14 @@
+@use '../settings/colors' as colors;
+
+.c-note {
+  border-radius: 999px;
+  background-color: rgba(colors.$color-text-primary, 0.05);
+  padding: 0.85rem 2.25rem;
+  font-size: 0.9rem;
+  color: colors.$color-text-secondary;
+  text-align: center;
+  margin-inline: auto;
+  max-width: 30rem;
+  border: 1px solid rgba(colors.$color-text-primary, 0.05);
+  font-style: italic;
+}

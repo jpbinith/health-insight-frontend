@@ -1,0 +1,19 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+.c-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: type.$font-weight-medium;
+  background: linear-gradient(135deg, rgba(colors.$color-primary, 0.12) 0%, rgba(colors.$color-primary, 0.24) 100%);
+  color: colors.$color-primary;
+  letter-spacing: 0.01em;
+}
+
+.c-badge--success {
+  background: linear-gradient(135deg, rgba(colors.$color-success, 0.12) 0%, rgba(colors.$color-success, 0.24) 100%);
+  color: colors.$color-success;
+}

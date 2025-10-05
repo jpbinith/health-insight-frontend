@@ -1,0 +1,36 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+.c-hero {
+  text-align: center;
+  padding-block: 0 0.5rem;
+  max-width: 48rem;
+  margin-inline: auto;
+}
+
+.c-hero--compact {
+  padding-block: 0;
+}
+
+.c-hero__title {
+  font-size: clamp(2.45rem, 4.8vw, 3.35rem);
+  margin-bottom: 1.5rem;
+  color: colors.$color-text-primary;
+  letter-spacing: -0.02em;
+}
+
+.c-hero__title--medium {
+  font-size: 2.25rem;
+}
+
+.c-hero__copy {
+  max-width: 36rem;
+  margin-inline: auto;
+  font-size: 1.125rem;
+  color: colors.$color-text-secondary;
+  letter-spacing: -0.01em;
+}
+
+.c-hero__copy--small {
+  font-size: 1rem;
+}

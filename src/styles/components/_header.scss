@@ -1,0 +1,29 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+@use '../tools/mixins' as mixins;
+
+.c-header {
+  padding-block: 1.5rem;
+}
+
+.c-header__inner {
+  @include mixins.container;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 70rem;
+}
+
+.c-header__brand {
+  font-size: 1.5rem;
+  font-weight: type.$font-weight-bold;
+  color: colors.$color-primary;
+  letter-spacing: -0.01em;
+}
+
+.c-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+}

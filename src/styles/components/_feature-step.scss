@@ -1,0 +1,48 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+.c-feature-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  text-align: center;
+  width: 100%;
+  max-width: 16.5rem;
+}
+
+.c-feature-step__icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgba(colors.$color-primary, 0.18) 0%, rgba(colors.$color-primary, 0.08) 100%);
+  color: colors.$color-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: inset 0 0 0 1px rgba(colors.$color-text-inverted, 0.12);
+
+  svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+}
+
+.c-feature-step__title {
+  font-size: 1rem;
+  color: colors.$color-text-primary;
+  font-weight: type.$font-weight-semibold;
+  letter-spacing: -0.01em;
+}
+
+.c-feature-step__copy {
+  font-size: 0.9rem;
+  color: colors.$color-text-secondary;
+  line-height: 1.55;
+}
