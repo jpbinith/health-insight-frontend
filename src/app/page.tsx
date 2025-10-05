@@ -129,7 +129,7 @@ export default function HomePage() {
               description="Get a quick read on visible skin changes. We highlight patterns, risk flags, and next steps you can discuss with a clinician."
               items={skinHealthItems}
               ctaLabel="Start Skin Health"
-              ctaHref="#"
+              ctaHref="/skin-health"
             />
             <Card
               badgeLabel="Eye Insights"
