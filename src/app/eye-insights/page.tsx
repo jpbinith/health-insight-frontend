@@ -1,10 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  useRef,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+  type KeyboardEvent,
+} from 'react';
 
 export default function EyeInsightsPage() {
   const [otherSelected, setOtherSelected] = useState(false);
   const [otherDiseases, setOtherDiseases] = useState<string[]>([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const toggleOther = (checked: boolean) => {
     setOtherSelected(checked);
@@ -23,6 +32,46 @@ export default function EyeInsightsPage() {
     setOtherDiseases((prev) => prev.filter((_, idx) => idx !== index));
   };
 
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const openFileDialog = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFiles = (files: FileList | null) => {
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const list = Array.from(files);
+    setSelectedFiles(list);
+  };
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+    handleFiles(event.dataTransfer?.files ?? null);
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    handleFiles(event.target.files);
+  };
+
   return (
     <section className="eye-insights">
       <div className="eye-insights__inner">
@@ -30,14 +79,71 @@ export default function EyeInsightsPage() {
           <h1 className="eye-insights__title">Add Iris Image</h1>
         </header>
 
-        <div className="eye-insights__dropzone" role="button" tabIndex={0}>
+        <div
+          className={`eye-insights__dropzone${dragActive ? ' eye-insights__dropzone--active' : ''}`}
+          role="button"
+          tabIndex={0}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDragEnter={handleDragOver}
+          onDrop={handleDrop}
+          onClick={openFileDialog}
+          onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              openFileDialog();
+            }
+          }}
+        >
           <div className="eye-insights__dropzone-copy">
+            <span className="eye-insights__dropzone-icon" aria-hidden="true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 16V7" />
+                <path d="m8 11 4-4 4 4" />
+                <path d="M20 16.58A5 5 0 0 0 18 7H17.26A8 8 0 1 0 4 15.25" />
+                <path d="M16 16H8" />
+              </svg>
+            </span>
             <p className="eye-insights__dropzone-title">Upload Image</p>
             <p className="eye-insights__dropzone-hint">Drag and drop or click to upload</p>
           </div>
-          <button className="eye-insights__browse" type="button">
-            Browse Files
-          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="eye-insights__file-input"
+            onChange={handleFileChange}
+            tabIndex={-1}
+          />
+          {selectedFiles.length > 0 ? (
+            <ul className="eye-insights__file-list">
+              {selectedFiles.map((file, index) => (
+                <li key={`${file.name}-${index}`} className="eye-insights__file-item">
+                  <span>{file.name}</span>
+                  <button
+                    type="button"
+                    className="eye-insights__file-remove"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      removeFile(index);
+                    }}
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
 
         <section aria-labelledby="health-heading" className="eye-insights__section">
