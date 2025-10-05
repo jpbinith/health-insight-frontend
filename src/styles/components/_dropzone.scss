@@ -1,0 +1,50 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+.c-dropzone {
+  border: 2px dashed rgba(colors.$color-primary, 0.25);
+  border-radius: 1.25rem;
+  background: rgba(colors.$color-primary, 0.04);
+  min-height: 12rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.75rem;
+  padding: 2.5rem;
+  color: colors.$color-text-secondary;
+}
+
+.c-dropzone__title {
+  font-size: 1.05rem;
+  font-weight: type.$font-weight-semibold;
+  color: colors.$color-text-primary;
+}
+
+.c-dropzone__hint {
+  font-size: 0.9rem;
+  color: colors.$color-text-secondary;
+}
+
+.c-dropzone__browse {
+  border: none;
+  background: colors.$color-surface-light;
+  color: colors.$color-text-primary;
+  font-weight: type.$font-weight-medium;
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(colors.$color-primary, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(colors.$color-primary, 0.18);
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color-primary;
+    outline-offset: 2px;
+  }
+}

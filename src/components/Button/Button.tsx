@@ -5,13 +5,16 @@ type ButtonIcon = 'arrow';
 type ButtonSize = 'md' | 'sm';
 
 type ButtonProps = {
-  href: string;
+  href?: string;
   children: ReactNode;
   variant?: ButtonVariant;
   icon?: ButtonIcon;
   className?: string;
   size?: ButtonSize;
   isBlock?: boolean;
+  as?: 'a' | 'button';
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: () => void;
 };
 
 const variantClassMap: Record<ButtonVariant, string> = {
@@ -55,6 +58,9 @@ export function Button({
   className,
   size = 'md',
   isBlock,
+  as = 'a',
+  type = 'button',
+  onClick,
 }: ButtonProps) {
   const variantClass = variantClassMap[variant];
   const sizeClass = sizeClassMap[size];
@@ -63,8 +69,17 @@ export function Button({
     .filter(Boolean)
     .join(' ');
 
+  if (as === 'button') {
+    return (
+      <button className={composedClassName} type={type} onClick={onClick}>
+        <span>{children}</span>
+        {icon ? iconLookup[icon] : null}
+      </button>
+    );
+  }
+
   return (
-    <a className={composedClassName} href={href}>
+    <a className={composedClassName} href={href ?? '#'}>
       <span>{children}</span>
       {icon ? iconLookup[icon] : null}
     </a>

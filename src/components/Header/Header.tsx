@@ -3,7 +3,7 @@ import { Button } from '../Button/Button';
 export function Header() {
   const navItems = [
     { label: 'Skin Health', href: '#' },
-    { label: 'Eye Health', href: '#' },
+    { label: 'Eye Health', href: '/eye-insights' },
   ];
 
   return (

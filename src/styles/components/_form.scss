@@ -1,0 +1,100 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+.c-form {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.c-form__section {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.c-form__section-title {
+  font-size: 1.125rem;
+  font-weight: type.$font-weight-semibold;
+  color: colors.$color-text-primary;
+}
+
+.c-form__description {
+  font-size: 0.95rem;
+  color: colors.$color-text-secondary;
+}
+
+.c-form__checkbox-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.c-form__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: colors.$color-text-primary;
+}
+
+.c-form__checkbox-input {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 0.35rem;
+  border: 1.5px solid rgba(colors.$color-text-primary, 0.25);
+  appearance: none;
+  background: colors.$color-surface-light;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+
+  &:checked {
+    border-color: colors.$color-primary;
+    background: colors.$color-primary;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0.18rem;
+      border-radius: 0.2rem;
+      background: colors.$color-text-inverted;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.c-form__notes-label {
+  font-size: 0.95rem;
+  font-weight: type.$font-weight-medium;
+  color: colors.$color-text-primary;
+}
+
+.c-form__textarea {
+  min-height: 7rem;
+  padding: 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(colors.$color-text-primary, 0.15);
+  font-size: 0.95rem;
+  color: colors.$color-text-primary;
+  background: rgba(colors.$color-primary, 0.04);
+  resize: vertical;
+  transition: border-color 0.2s ease;
+
+  &::placeholder {
+    color: rgba(colors.$color-primary, 0.65);
+  }
+
+  &:focus {
+    border-color: colors.$color-primary;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(colors.$color-primary, 0.12);
+  }
+}
+
+.c-form__actions {
+  display: flex;
+  justify-content: flex-end;
+}

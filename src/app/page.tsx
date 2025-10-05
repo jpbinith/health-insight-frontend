@@ -143,7 +143,7 @@ export default function HomePage() {
                 description="Your participation refines how iris patterns relate to health. We handle every contribution with transparency and strict privacy."
                 items={eyeInsightsItems}
                 ctaLabel="Contribute to Eye Insights"
-                ctaHref="#"
+                ctaHref="/eye-insights"
                 ctaVariant="success"
               />
             </div>
