@@ -1,0 +1,60 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+@use '../tools/mixins' as mixins;
+
+.c-header {
+  padding-block: 1.5rem;
+  border-bottom: 1px solid rgba(colors.$color-text-primary, 0.06);
+  background-color: colors.$color-surface-light;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.c-header__inner {
+  @include mixins.container;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 70rem;
+  position: relative;
+}
+
+.c-header__brand {
+  font-size: 1.5rem;
+  font-weight: type.$font-weight-bold;
+  color: colors.$color-primary;
+  letter-spacing: -0.01em;
+  position: absolute;
+  left: 0;
+}
+
+.c-header__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.75rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+  font-size: 0.95rem;
+  font-weight: type.$font-weight-medium;
+  color: colors.$color-text-primary;
+}
+
+.c-header__nav-link {
+  color: inherit;
+  transition: color 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: colors.$color-primary;
+  }
+}
+
+.c-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  position: absolute;
+  right: 0;
+}

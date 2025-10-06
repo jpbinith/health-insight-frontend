@@ -1,0 +1,89 @@
+@use '../settings/colors' as colors;
+@use '../tools/mixins' as mixins;
+
+.o-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.o-section {
+  padding-block: 4rem;
+
+  @media (min-width: 768px) {
+    padding-block: 6rem;
+  }
+}
+
+.o-section--muted {
+  background-color: colors.$color-surface-light;
+  padding-block: 2.5rem 3.5rem;
+
+  @media (min-width: 768px) {
+    padding-block: 4rem 4.75rem;
+  }
+}
+
+.o-section--contrast {
+  background-color: #EFF4FA;
+}
+
+.o-section--hero {
+  padding-block: 4.9rem 1.75rem;
+  background: linear-gradient(180deg, #EEF2FF 0%, #F6F8FF 55%, #FFFFFF 100%);
+
+  @media (min-width: 768px) {
+    padding-block: 5.8rem 2.4rem;
+  }
+}
+
+.o-container {
+  @include mixins.container;
+}
+
+.o-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.o-grid--two-column {
+  justify-items: center;
+  align-items: stretch;
+
+  @media (min-width: 768px) {
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.75rem;
+  }
+}
+
+.o-grid--three-column {
+  justify-items: center;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem;
+  }
+}
+
+.o-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.o-stack--gap-lg {
+  gap: 2rem;
+}
+
+.o-stack--gap-xl {
+  gap: 3rem;
+}
+
+.o-stack--center {
+  align-items: center;
+}

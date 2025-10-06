@@ -1,0 +1,26 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+body {
+  font-family: type.$font-family-base;
+  font-size: type.$font-size-base;
+  line-height: type.$line-height-base;
+  color: colors.$color-text-primary;
+  background-color: colors.$color-background-page;
+}
+
+body.is-dark {
+  background-color: colors.$color-background-dark;
+  color: colors.$color-text-inverted;
+}
+
+main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:root {
+  color-scheme: light;
+}

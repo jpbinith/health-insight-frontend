@@ -1,0 +1,16 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: type.$font-weight-bold;
+  color: colors.$color-text-primary;
+  letter-spacing: -0.015em;
+}
+
+p {
+  color: colors.$color-text-secondary;
+}
+
+strong {
+  font-weight: type.$font-weight-semibold;
+}

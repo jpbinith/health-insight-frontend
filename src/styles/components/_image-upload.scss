@@ -1,0 +1,129 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+.image-upload {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+}
+
+.image-upload__dropzone {
+  border: 2px dashed rgba(colors.$color-text-primary, 0.2);
+  border-radius: 1.25rem;
+  padding: 2.5rem 2rem;
+  display: grid;
+  gap: 0.6rem;
+  justify-items: center;
+  text-align: center;
+  background-color: rgba(colors.$color-text-primary, 0.03);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.image-upload__dropzone--active {
+  border-color: colors.$color-primary;
+  background-color: rgba(colors.$color-primary, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(colors.$color-primary, 0.18);
+}
+
+.image-upload__dropzone--hidden {
+  display: none;
+}
+
+.image-upload__icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  color: colors.$color-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background-color: rgba(colors.$color-primary, 0.12);
+  padding: 0.45rem;
+}
+
+.image-upload__title {
+  font-size: 1.05rem;
+  font-weight: type.$font-weight-semibold;
+  color: colors.$color-text-primary;
+}
+
+.image-upload__prompt {
+  font-weight: type.$font-weight-medium;
+  color: colors.$color-text-primary;
+}
+
+.image-upload__helper {
+  font-size: 0.85rem;
+  color: colors.$color-text-secondary;
+}
+
+.image-upload__file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.image-upload__file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.6rem;
+  background-color: rgba(colors.$color-primary, 0.05);
+}
+
+.image-upload__file-name {
+  font-size: 0.9rem;
+  color: colors.$color-text-primary;
+}
+
+.image-upload__file-remove {
+  border: none;
+  background: transparent;
+  color: colors.$color-primary;
+  font-size: 0.85rem;
+  font-weight: type.$font-weight-medium;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.4rem;
+
+  &:hover {
+    color: colors.$color-primary;
+    text-decoration: underline;
+  }
+}
+
+.image-upload__preview {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+.image-upload__preview-image {
+  max-height: 18rem;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(colors.$color-text-primary, 0.2);
+  object-fit: cover;
+}
+
+.image-upload__remove {
+  border: none;
+  background: transparent;
+  color: #dc2626;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.image-upload__input {
+  display: none;
+}
