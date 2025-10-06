@@ -1,0 +1,161 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+@use '../tools/mixins' as mixins;
+
+.analysis-page {
+  background: linear-gradient(180deg, #eef3ff 0%, #f6f8ff 45%, #ffffff 100%);
+  padding-block: 5rem 5.5rem;
+  flex: 1 1 auto;
+  display: flex;
+}
+
+.analysis-page__inner {
+  @include mixins.container;
+  max-width: 58rem;
+  display: grid;
+  gap: 3rem;
+  justify-items: center;
+  text-align: center;
+}
+
+.analysis-page__intro {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.analysis-page__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 2rem;
+  padding-inline: 1.1rem;
+  padding-block: 0.35rem;
+  border-radius: 999px;
+  font-size: 0.87rem;
+  font-weight: type.$font-weight-medium;
+  letter-spacing: 0.01em;
+  background-color: rgba(59, 130, 246, 0.14);
+  color: colors.$color-primary;
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.18);
+}
+
+.analysis-page__badge--blue {
+  background-color: rgba(59, 130, 246, 0.14);
+  color: colors.$color-primary;
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.18);
+}
+
+.analysis-page__badge--green {
+  background-color: rgba(34, 197, 94, 0.16);
+  color: #16a34a;
+  box-shadow: inset 0 0 0 1px rgba(22, 163, 74, 0.22);
+}
+
+.analysis-page__title {
+  font-size: clamp(2.25rem, 4vw, 2.85rem);
+  font-weight: type.$font-weight-bold;
+  letter-spacing: -0.02em;
+  color: colors.$color-text-primary;
+}
+
+.analysis-page__subtitle {
+  font-size: 1.05rem;
+  color: colors.$color-text-secondary;
+  max-width: 34rem;
+  margin-inline: auto;
+  line-height: 1.6;
+}
+
+.analysis-card {
+  width: min(100%, 46rem);
+  background-color: colors.$color-surface-light;
+  border: 1px solid rgba(colors.$color-text-primary, 0.06);
+  border-radius: 1.6rem;
+  padding: 3rem 2.75rem;
+  display: grid;
+  gap: 2.25rem;
+  box-shadow: 0 30px 70px -40px rgba(15, 23, 42, 0.28);
+}
+
+.analysis-card__uploader .image-upload {
+  gap: 1.4rem;
+}
+
+.analysis-card__uploader .image-upload__dropzone {
+  width: 100%;
+  border-radius: 1.25rem;
+  padding: 3rem 2.25rem;
+  border: 2px dashed #3b82f6;
+  background-color: rgba(59, 130, 246, .14);
+}
+
+.analysis-card__uploader .image-upload__prompt {
+  max-width: 22rem;
+  line-height: 1.6;
+}
+
+.analysis-card__uploader .image-upload__helper {
+  font-size: 0.85rem;
+  color: colors.$color-text-secondary;
+}
+
+.analysis-card__uploader .image-upload__preview {
+  gap: 1rem;
+}
+
+.analysis-card__section {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.analysis-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 0.9rem;
+  font-size: 1rem;
+  font-weight: type.$font-weight-semibold;
+  border: none;
+  background-color: rgba(148, 163, 184, 0.6);
+  color: colors.$color-text-inverted;
+  cursor: not-allowed;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.analysis-card__cta--enabled {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  cursor: pointer;
+  box-shadow: 0 18px 32px rgba(59, 130, 246, 0.25);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 36px rgba(59, 130, 246, 0.28);
+  }
+}
+
+.analysis-page__disclaimer {
+  font-size: 0.88rem;
+  color: colors.$color-text-secondary;
+  background-color: rgba(colors.$color-text-primary, 0.05);
+  padding: 1.25rem 1.75rem;
+  border-radius: 1.35rem;
+  max-width: 38rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .analysis-page {
+    padding-block: 3.5rem 4rem;
+  }
+
+  .analysis-card {
+    padding: 2.5rem 1.75rem;
+  }
+}

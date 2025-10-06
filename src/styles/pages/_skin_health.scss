@@ -1,0 +1,46 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+.skin-upload .analysis-card {
+  text-align: center;
+}
+
+.skin-upload .analysis-card .image-upload__prompt {
+  max-width: 22rem;
+}
+
+.skin-upload .analysis-card__cta {
+  justify-self: center;
+  width: min(100%, 18rem);
+}
+
+.skin-upload .analysis-card__cta--enabled {
+  box-shadow: 0 18px 32px rgba(59, 130, 246, 0.25);
+}
+
+.skin-upload .analysis-page__disclaimer {
+  text-align: left;
+}
+
+.skin-upload .analysis-card__uploader--skin .image-upload__dropzone {
+  border: 2px dashed rgba(59, 130, 246, 0.5);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.skin-upload .analysis-card__uploader--skin .image-upload__dropzone--active,
+.skin-upload .analysis-card__uploader--skin .image-upload__dropzone:hover {
+  border-color: #2563eb;
+  background-color: rgba(59, 130, 246, 0.16);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px rgba(59, 130, 246, 0.18);
+}
+
+.skin-upload .analysis-card__uploader--skin .image-upload__icon {
+  background-color: rgba(59, 130, 246, 0.18);
+  color: colors.$color-primary;
+}
+
+.skin-upload .analysis-card__uploader--skin .image-upload__helper {
+  font-size: 0.85rem;
+  color: colors.$color-text-secondary;
+}
