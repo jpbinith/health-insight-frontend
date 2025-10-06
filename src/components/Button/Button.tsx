@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 type ButtonVariant = 'primary' | 'success' | 'link';
 type ButtonIcon = 'arrow';
@@ -28,7 +28,7 @@ const sizeClassMap: Record<ButtonSize, string> = {
   sm: 'c-button--size-sm',
 };
 
-const iconLookup: Record<ButtonIcon, JSX.Element> = {
+const iconLookup: Record<ButtonIcon, ReactElement> = {
   arrow: (
     <svg
       className="c-button__icon"
