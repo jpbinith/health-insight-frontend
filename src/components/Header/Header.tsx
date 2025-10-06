@@ -21,10 +21,10 @@ export function Header() {
           ))}
         </nav>
         <div className="c-header__actions">
-          <Button href="#" variant="link" size="sm">
+          <Button href="/login" variant="link" size="sm">
             Log in
           </Button>
-          <Button href="#" size="sm">
+          <Button href="/sign-up" size="sm">
             Sign up
           </Button>
         </div>
