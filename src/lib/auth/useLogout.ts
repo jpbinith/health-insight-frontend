@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAppDispatch } from '../state/hooks';
-import { clearCredentials } from '../state/slices/authSlice';
+import { clearCredentials, setRememberPreference } from '../state/slices/authSlice';
 import { clearAuthToken } from './tokenStorage';
 
 export const useLogout = () => {
@@ -14,6 +14,7 @@ export const useLogout = () => {
   return useCallback(() => {
     clearAuthToken();
     dispatch(clearCredentials());
+    dispatch(setRememberPreference(false));
     router.push('/login');
   }, [dispatch, router]);
 };

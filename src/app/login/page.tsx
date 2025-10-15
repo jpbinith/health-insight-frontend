@@ -14,6 +14,7 @@ import {
 
 import { login } from 'web/lib/api/auth';
 import { ApiError, ConfigurationError } from 'web/lib/api/client';
+import { getTokenExpiry } from 'web/lib/auth/jwt';
 import { persistAuthToken } from 'web/lib/auth/tokenStorage';
 import { useAppDispatch, useAppSelector } from 'web/lib/state/hooks';
 import { setCredentials, setRememberPreference } from 'web/lib/state/slices/authSlice';
@@ -87,6 +88,11 @@ export default function LoginPage() {
         throw new ApiError('Login response is missing an access token.', 500, response);
       }
 
+      const expiresAt = getTokenExpiry(token);
+      if (expiresAt && expiresAt <= Date.now()) {
+        throw new ApiError('Session token has already expired.', 401, response);
+      }
+
       dispatch(
         setCredentials({
           token,
@@ -94,10 +100,11 @@ export default function LoginPage() {
             email: formState.email.trim(),
           },
           remember: formState.remember,
+          expiresAt: expiresAt ?? null,
         })
       );
       dispatch(setRememberPreference(formState.remember));
-      persistAuthToken(token, { remember: formState.remember });
+      persistAuthToken(token, { remember: formState.remember, expiresAt });
 
       setSuccessMessage('Logged in successfully. Redirecting to your dashboard...');
       redirectTimeoutRef.current = setTimeout(() => {

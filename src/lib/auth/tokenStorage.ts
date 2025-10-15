@@ -3,6 +3,7 @@
 const TOKEN_COOKIE_NAME = 'authToken';
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 2; // 2 hours
 const REMEMBER_MAX_AGE_SECONDS = 60 * 60 * 24 * 14; // 14 days
+const TOKEN_EXPIRY_KEY = `${TOKEN_COOKIE_NAME}:expires`;
 
 const isBrowser = () => typeof window !== 'undefined';
 
@@ -23,17 +24,42 @@ const persistRememberPreference = (remember: boolean) => {
   }
 };
 
-export const persistAuthToken = (token: string, options?: { remember?: boolean }) => {
+const persistExpiry = (expiresAt: number | null, remember: boolean) => {
+  if (!isBrowser()) {
+    return;
+  }
+
+  try {
+    if (expiresAt) {
+      const target = remember ? window.localStorage : window.sessionStorage;
+      target.setItem(TOKEN_EXPIRY_KEY, String(expiresAt));
+      const other = remember ? window.sessionStorage : window.localStorage;
+      other.removeItem(TOKEN_EXPIRY_KEY);
+    } else {
+      window.localStorage.removeItem(TOKEN_EXPIRY_KEY);
+      window.sessionStorage.removeItem(TOKEN_EXPIRY_KEY);
+    }
+  } catch {
+    // Ignore storage issues.
+  }
+};
+
+export const persistAuthToken = (
+  token: string,
+  options?: { remember?: boolean; expiresAt?: number | null }
+) => {
   if (!isBrowser()) {
     return;
   }
 
   const maxAge = options?.remember ? REMEMBER_MAX_AGE_SECONDS : SESSION_MAX_AGE_SECONDS;
   document.cookie = buildCookie(TOKEN_COOKIE_NAME, token, maxAge);
-  persistRememberPreference(Boolean(options?.remember));
+  const remember = Boolean(options?.remember);
+  persistRememberPreference(remember);
+  persistExpiry(options?.expiresAt ?? null, remember);
 
   try {
-    if (options?.remember) {
+    if (remember) {
       window.localStorage.setItem(TOKEN_COOKIE_NAME, token);
     } else {
       window.sessionStorage.setItem(TOKEN_COOKIE_NAME, token);
@@ -68,7 +94,7 @@ export const loadStoredAuthToken = () => {
   }
 };
 
-export const clearAuthToken = () => {
+export const clearAuthToken = (options?: { preserveRemember?: boolean }) => {
   if (!isBrowser()) {
     return;
   }
@@ -78,7 +104,11 @@ export const clearAuthToken = () => {
   try {
     window.localStorage.removeItem(TOKEN_COOKIE_NAME);
     window.sessionStorage.removeItem(TOKEN_COOKIE_NAME);
-    window.localStorage.removeItem(`${TOKEN_COOKIE_NAME}:remember`);
+    if (!options?.preserveRemember) {
+      window.localStorage.removeItem(`${TOKEN_COOKIE_NAME}:remember`);
+    }
+    window.localStorage.removeItem(TOKEN_EXPIRY_KEY);
+    window.sessionStorage.removeItem(TOKEN_EXPIRY_KEY);
   } catch {
     // Ignore storage cleanup failures.
   }
@@ -93,5 +123,24 @@ export const loadRememberPreference = () => {
     return window.localStorage.getItem(`${TOKEN_COOKIE_NAME}:remember`) === '1';
   } catch {
     return false;
+  }
+};
+
+export const loadStoredTokenExpiry = () => {
+  if (!isBrowser()) {
+    return null;
+  }
+
+  try {
+    const value =
+      window.sessionStorage.getItem(TOKEN_EXPIRY_KEY) ??
+      window.localStorage.getItem(TOKEN_EXPIRY_KEY);
+    if (!value) {
+      return null;
+    }
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : null;
+  } catch {
+    return null;
   }
 };
