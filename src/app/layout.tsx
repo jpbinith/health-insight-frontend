@@ -15,12 +15,13 @@ export const metadata: Metadata = {
     'Leverage AI to gain valuable insights into your skin and contribute to eye health research with secure, transparent workflows.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const authToken = cookies().get('authToken')?.value ?? null;
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get('authToken')?.value ?? null;
 
   return (
     <html lang="en">

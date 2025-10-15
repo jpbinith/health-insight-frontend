@@ -15,8 +15,8 @@ import {
 import { login } from 'web/lib/api/auth';
 import { ApiError, ConfigurationError } from 'web/lib/api/client';
 import { persistAuthToken } from 'web/lib/auth/tokenStorage';
-import { useAppDispatch } from 'web/lib/state/hooks';
-import { setCredentials } from 'web/lib/state/slices/authSlice';
+import { useAppDispatch, useAppSelector } from 'web/lib/state/hooks';
+import { setCredentials, setRememberPreference } from 'web/lib/state/slices/authSlice';
 
 type LoginFormState = {
   email: string;
@@ -33,7 +33,11 @@ const initialState: LoginFormState = {
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [formState, setFormState] = useState<LoginFormState>(initialState);
+  const rememberFromStore = useAppSelector((state) => state.auth.remember);
+  const [formState, setFormState] = useState<LoginFormState>({
+    ...initialState,
+    remember: rememberFromStore,
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -89,8 +93,10 @@ export default function LoginPage() {
           user: response.user ?? {
             email: formState.email.trim(),
           },
+          remember: formState.remember,
         })
       );
+      dispatch(setRememberPreference(formState.remember));
       persistAuthToken(token, { remember: formState.remember });
 
       setSuccessMessage('Logged in successfully. Redirecting to your dashboard...');

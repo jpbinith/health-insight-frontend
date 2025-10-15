@@ -4,8 +4,8 @@ import { type ReactNode, useEffect, useRef } from 'react';
 import { Provider } from 'react-redux';
 
 import { makeStore, type AppStore } from 'web/lib/state/store';
-import { loadStoredAuthToken } from 'web/lib/auth/tokenStorage';
-import { setCredentials } from 'web/lib/state/slices/authSlice';
+import { loadRememberPreference, loadStoredAuthToken } from 'web/lib/auth/tokenStorage';
+import { setCredentials, setRememberPreference } from 'web/lib/state/slices/authSlice';
 
 type StoreProviderProps = {
   children: ReactNode;
@@ -21,6 +21,7 @@ const buildPreloadedState = (token?: string | null) => {
     auth: {
       token,
       user: null,
+      remember: false,
     },
   };
 };
@@ -33,8 +34,17 @@ export default function StoreProvider({ children, initialToken }: StoreProviderP
 
   useEffect(() => {
     const storedToken = loadStoredAuthToken();
+    const remember = loadRememberPreference();
     const state = storeRef.current?.getState();
-    if (storedToken && state && !state.auth.token) {
+    if (!state) {
+      return;
+    }
+
+    if (remember !== state.auth.remember) {
+      storeRef.current?.dispatch(setRememberPreference(remember));
+    }
+
+    if (storedToken && !state.auth.token) {
       storeRef.current?.dispatch(setCredentials({ token: storedToken }));
     }
   }, []);
