@@ -194,7 +194,7 @@ export default function LoginPage() {
                 />
                 <span>Keep me signed in</span>
               </label>
-              <Link className="auth-card__link" href="#">
+              <Link className="auth-card__link" href="/forgot-password">
                 Forgot password?
               </Link>
             </div>

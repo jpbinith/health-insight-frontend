@@ -6,6 +6,7 @@ import { Header } from '../components/Header/Header';
 import { Footer } from '../components/Footer/Footer';
 import { cookies } from 'next/headers';
 import StoreProvider from './StoreProvider';
+import type { AuthUser } from 'web/lib/state/slices/authSlice';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
@@ -23,11 +24,19 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const authToken = cookieStore.get('authToken')?.value ?? null;
   const authUserCookie = cookieStore.get('authUser')?.value ?? null;
-  let initialUser: { fullName?: string | null; email?: string | null } | null = null;
+  let initialUser: AuthUser | null = null;
   if (authUserCookie) {
     try {
       const decoded = decodeURIComponent(authUserCookie);
-      initialUser = JSON.parse(decoded) as { fullName?: string | null; email?: string | null };
+      const parsed = JSON.parse(decoded) as {
+        fullName?: string | null;
+        email?: string | null;
+        [key: string]: unknown;
+      };
+      initialUser = {
+        fullName: parsed.fullName ?? undefined,
+        email: parsed.email ?? undefined,
+      };
     } catch {
       initialUser = null;
     }

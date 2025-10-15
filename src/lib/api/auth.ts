@@ -20,4 +20,27 @@ export type LoginResponse = {
 };
 
 export const login = (payload: LoginPayload) =>
-  apiClient.post<LoginResponse>('/auth/login', payload);
+  apiClient.post<LoginResponse, LoginPayload>('/auth/login', payload);
+
+export type ForgotPasswordPayload = {
+  email: string;
+};
+
+export type ForgotPasswordResponse = {
+  message?: string;
+};
+
+export const requestPasswordReset = (payload: ForgotPasswordPayload) =>
+  apiClient.post<ForgotPasswordResponse, ForgotPasswordPayload>('/auth/forgot-password', payload);
+
+export type ResetPasswordPayload = {
+  token: string;
+  password: string;
+};
+
+export type ResetPasswordResponse = {
+  message?: string;
+};
+
+export const resetPassword = (payload: ResetPasswordPayload) =>
+  apiClient.post<ResetPasswordResponse, ResetPasswordPayload>('/auth/reset-password', payload);

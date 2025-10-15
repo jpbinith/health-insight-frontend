@@ -25,13 +25,30 @@ import { getTokenExpiry } from 'web/lib/auth/jwt';
 type StoreProviderProps = {
   children: ReactNode;
   initialToken?: string | null;
-  initialUser?: { fullName?: string | null; email?: string | null } | null;
+  initialUser?: AuthUser | null;
 };
 
-const buildPreloadedState = (
-  token?: string | null,
-  user?: { fullName?: string | null; email?: string | null } | null
-) => {
+const normalizeAuthUser = (user?: AuthUser | null): AuthUser | null => {
+  if (!user) {
+    return null;
+  }
+
+  const normalized: AuthUser = {
+    ...user,
+  };
+
+  if (normalized.fullName == null) {
+    delete normalized.fullName;
+  }
+
+  if (normalized.email == null) {
+    delete normalized.email;
+  }
+
+  return normalized;
+};
+
+const buildPreloadedState = (token?: string | null, user?: AuthUser | null) => {
   if (!token) {
     return undefined;
   }
@@ -39,7 +56,7 @@ const buildPreloadedState = (
   return {
     auth: {
       token,
-      user: user ?? null,
+      user: normalizeAuthUser(user),
       remember: false,
       expiresAt: null,
     },
@@ -71,13 +88,13 @@ export default function StoreProvider({ children, initialToken, initialUser }: S
       store.dispatch(setRememberPreference(remember));
     }
 
-    const seededUser = state.auth.user ?? initialUser ?? null;
+    const seededUser = state.auth.user ?? normalizeAuthUser(initialUser) ?? null;
     const nextToken = storedToken ?? state.auth.token;
     const nextExpires =
       storedExpiry ??
       state.auth.expiresAt ??
       (nextToken ? getTokenExpiry(nextToken) : null);
-    const nextUser = storedUser ?? seededUser;
+    const nextUser = normalizeAuthUser(storedUser ?? seededUser);
 
     const shouldHydrateUser = !!nextUser && !state.auth.user;
 
