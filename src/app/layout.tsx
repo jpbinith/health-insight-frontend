@@ -22,11 +22,21 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
   const authToken = cookieStore.get('authToken')?.value ?? null;
+  const authUserCookie = cookieStore.get('authUser')?.value ?? null;
+  let initialUser: { fullName?: string | null; email?: string | null } | null = null;
+  if (authUserCookie) {
+    try {
+      const decoded = decodeURIComponent(authUserCookie);
+      initialUser = JSON.parse(decoded) as { fullName?: string | null; email?: string | null };
+    } catch {
+      initialUser = null;
+    }
+  }
 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StoreProvider initialToken={authToken}>
+        <StoreProvider initialToken={authToken} initialUser={initialUser}>
           <div className="o-page">
             <Header />
             <main>{children}</main>

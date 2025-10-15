@@ -59,23 +59,32 @@ export function Header() {
   const { token, user } = useAppSelector((state) => state.auth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const lastKnownUserRef = useRef<typeof user>(null);
+
+  useEffect(() => {
+    if (user) {
+      lastKnownUserRef.current = user;
+    }
+  }, [user]);
+
+  const effectiveUser = user ?? lastKnownUserRef.current;
 
   const displayName = useMemo(
     () =>
       getDisplayName({
-        fullName: user?.fullName as string | undefined,
-        email: user?.email as string | undefined,
+        fullName: effectiveUser?.fullName as string | undefined,
+        email: effectiveUser?.email as string | undefined,
       }),
-    [user?.email, user?.fullName]
+    [effectiveUser?.email, effectiveUser?.fullName]
   );
 
   const initials = useMemo(
     () =>
       buildInitials({
-        fullName: user?.fullName as string | undefined,
-        email: user?.email as string | undefined,
+        fullName: effectiveUser?.fullName as string | undefined,
+        email: effectiveUser?.email as string | undefined,
       }),
-    [user?.email, user?.fullName]
+    [effectiveUser?.email, effectiveUser?.fullName]
   );
 
   const toggleMenu = useCallback(() => {

@@ -10,6 +10,7 @@ import {
   loadRememberPreference,
   loadStoredAuthToken,
   loadStoredTokenExpiry,
+  loadStoredUserProfile,
   persistAuthToken,
 } from 'web/lib/auth/tokenStorage';
 import {
@@ -18,14 +19,19 @@ import {
   setRememberPreference,
   setTokenExpiry,
 } from 'web/lib/state/slices/authSlice';
+import type { AuthUser } from 'web/lib/state/slices/authSlice';
 import { getTokenExpiry } from 'web/lib/auth/jwt';
 
 type StoreProviderProps = {
   children: ReactNode;
   initialToken?: string | null;
+  initialUser?: { fullName?: string | null; email?: string | null } | null;
 };
 
-const buildPreloadedState = (token?: string | null) => {
+const buildPreloadedState = (
+  token?: string | null,
+  user?: { fullName?: string | null; email?: string | null } | null
+) => {
   if (!token) {
     return undefined;
   }
@@ -33,18 +39,18 @@ const buildPreloadedState = (token?: string | null) => {
   return {
     auth: {
       token,
-      user: null,
+      user: user ?? null,
       remember: false,
       expiresAt: null,
     },
   };
 };
 
-export default function StoreProvider({ children, initialToken }: StoreProviderProps) {
+export default function StoreProvider({ children, initialToken, initialUser }: StoreProviderProps) {
   const router = useRouter();
   const storeRef = useRef<AppStore | null>(null);
   if (!storeRef.current) {
-    storeRef.current = makeStore(buildPreloadedState(initialToken));
+    storeRef.current = makeStore(buildPreloadedState(initialToken, initialUser));
   }
   const store = storeRef.current;
   if (!store) {
@@ -54,6 +60,7 @@ export default function StoreProvider({ children, initialToken }: StoreProviderP
   useEffect(() => {
     const storedToken = loadStoredAuthToken();
     const storedExpiry = loadStoredTokenExpiry();
+    const storedUser = loadStoredUserProfile();
     const remember = loadRememberPreference();
     const state = store.getState();
     if (!state) {
@@ -64,17 +71,21 @@ export default function StoreProvider({ children, initialToken }: StoreProviderP
       store.dispatch(setRememberPreference(remember));
     }
 
+    const seededUser = state.auth.user ?? initialUser ?? null;
     const nextToken = storedToken ?? state.auth.token;
     const nextExpires =
       storedExpiry ??
       state.auth.expiresAt ??
       (nextToken ? getTokenExpiry(nextToken) : null);
+    const nextUser = storedUser ?? seededUser;
 
-    if (nextToken && (!state.auth.token || state.auth.token !== nextToken)) {
+    const shouldHydrateUser = !!nextUser && !state.auth.user;
+
+    if (nextToken && (!state.auth.token || state.auth.token !== nextToken || shouldHydrateUser)) {
       store.dispatch(
         setCredentials({
           token: nextToken,
-          user: state.auth.user,
+          user: nextUser ?? null,
           remember,
           expiresAt: nextExpires ?? undefined,
         })
@@ -84,9 +95,20 @@ export default function StoreProvider({ children, initialToken }: StoreProviderP
     }
 
     if (nextToken) {
-      persistAuthToken(nextToken, { remember, expiresAt: nextExpires ?? null });
+      const persistOptions: {
+        remember: boolean;
+        expiresAt: number | null;
+        user?: AuthUser | null;
+      } = {
+        remember,
+        expiresAt: nextExpires ?? null,
+      };
+      if (nextUser) {
+        persistOptions.user = nextUser;
+      }
+      persistAuthToken(nextToken, persistOptions);
     }
-  }, [store]);
+  }, [store, initialUser]);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -98,13 +120,21 @@ export default function StoreProvider({ children, initialToken }: StoreProviderP
       }
 
       const state = store.getState();
-      const { token, expiresAt, remember } = state.auth;
+      const { token, expiresAt, remember, user } = state.auth;
 
       if (token && !expiresAt) {
         const computed = getTokenExpiry(token);
         if (computed) {
           store.dispatch(setTokenExpiry(computed));
-          persistAuthToken(token, { remember, expiresAt: computed });
+          const persistOptions: {
+            remember: boolean;
+            expiresAt: number | null;
+            user?: AuthUser | null;
+          } = { remember, expiresAt: computed };
+          if (user) {
+            persistOptions.user = user;
+          }
+          persistAuthToken(token, persistOptions);
         }
       }
 
