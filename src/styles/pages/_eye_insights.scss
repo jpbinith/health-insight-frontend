@@ -193,6 +193,27 @@
 .eye-insights__actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
+
+.eye-insights__messages {
+  min-height: 1.5rem;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.eye-insights__message {
+  margin: 0;
+  font-weight: type.$font-weight-medium;
+}
+
+.eye-insights__message--error {
+  color: colors.$color-error;
+}
+
+.eye-insights__message--success {
+  color: colors.$color-success;
 }
 
 .eye-insights__save {

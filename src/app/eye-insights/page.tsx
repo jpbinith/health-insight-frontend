@@ -1,13 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+
 import { ImageUploader } from '../../components/ImageUploader/ImageUploader';
+import { createIrisRecord } from 'web/lib/api/iris';
+import { ApiError, ConfigurationError } from 'web/lib/api/client';
+
+const healthOptions = [
+  { value: 'none', label: 'None/healthy control' },
+  { value: 'hypertension', label: 'Hypertension' },
+  { value: 'diabetes', label: 'Diabetes' },
+  { value: 'thyroid', label: 'Thyroid condition' },
+] as const;
 
 export default function EyeInsightsPage() {
   const [otherSelected, setOtherSelected] = useState(false);
   const [otherDiseases, setOtherDiseases] = useState<string[]>([]);
+  const [selectedHealth, setSelectedHealth] = useState<string[]>([]);
+  const [notes, setNotes] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploaderKey, setUploaderKey] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const toggleOther = (checked: boolean) => {
     setOtherSelected(checked);
@@ -26,7 +42,89 @@ export default function EyeInsightsPage() {
     setOtherDiseases((prev) => prev.filter((_, idx) => idx !== index));
   };
 
+  const toggleHealthCondition = (value: string, checked: boolean) => {
+    setSelectedHealth((prev) => {
+      if (checked) {
+        if (prev.includes(value)) {
+          return prev;
+        }
+        if (value === 'none') {
+          return ['none'];
+        }
+        return [...prev.filter((entry) => entry !== 'none'), value];
+      }
+      const next = prev.filter((entry) => entry !== value);
+      if (value === 'none') {
+        return next;
+      }
+      return next;
+    });
+  };
+
+  const healthIssues = useMemo(() => {
+    const otherEntries = otherDiseases
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+    return [...selectedHealth, ...otherEntries];
+  }, [otherDiseases, selectedHealth]);
+
   const filesSelected = uploadedFiles.length > 0;
+
+  const handleSubmit = async () => {
+    if (!filesSelected) {
+      setErrorMessage('Please add an iris image before saving your record.');
+      setSuccessMessage(null);
+      return;
+    }
+
+    if (!consentChecked) {
+      setErrorMessage('You need to confirm consent before uploading.');
+      setSuccessMessage(null);
+      return;
+    }
+
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', uploadedFiles[0]);
+      if (healthIssues.length > 0) {
+        formData.append('healthIssues', JSON.stringify(healthIssues));
+      }
+      if (notes.trim()) {
+        formData.append('note', notes.trim());
+      }
+
+      await createIrisRecord(formData);
+
+      setSuccessMessage('Iris record uploaded successfully.');
+      setSelectedHealth([]);
+      setOtherSelected(false);
+      setOtherDiseases([]);
+      setNotes('');
+      setConsentChecked(false);
+      setUploadedFiles([]);
+      setUploaderKey((prev) => prev + 1);
+    } catch (error) {
+      if (error instanceof ConfigurationError) {
+        setErrorMessage('Iris upload service is not configured. Please contact support.');
+        return;
+      }
+
+      if (error instanceof ApiError) {
+        setErrorMessage(error.message);
+        return;
+      }
+
+      setErrorMessage('We could not upload your iris record right now. Please try again shortly.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isSaveDisabled = !consentChecked || !filesSelected || isSubmitting;
 
   return (
     <section className="analysis-page eye-insights">
@@ -42,6 +140,7 @@ export default function EyeInsightsPage() {
 
         <div className="analysis-card eye-insights__card">
           <ImageUploader
+            key={uploaderKey}
             accept="image/*"
             title="Upload Image"
             prompt="Drag and drop or click to upload"
@@ -58,22 +157,19 @@ export default function EyeInsightsPage() {
                 Self-reported health
               </h2>
               <div className="eye-insights__checkboxes">
-                <label className="eye-insights__checkbox">
-                  <input className="eye-insights__checkbox-input" type="checkbox" name="health" value="none" />
-                  <span>None/healthy control</span>
-                </label>
-                <label className="eye-insights__checkbox">
-                  <input className="eye-insights__checkbox-input" type="checkbox" name="health" value="hypertension" />
-                  <span>Hypertension</span>
-                </label>
-                <label className="eye-insights__checkbox">
-                  <input className="eye-insights__checkbox-input" type="checkbox" name="health" value="diabetes" />
-                  <span>Diabetes</span>
-                </label>
-                <label className="eye-insights__checkbox">
-                  <input className="eye-insights__checkbox-input" type="checkbox" name="health" value="thyroid" />
-                  <span>Thyroid condition</span>
-                </label>
+                {healthOptions.map((option) => (
+                  <label className="eye-insights__checkbox" key={option.value}>
+                    <input
+                      className="eye-insights__checkbox-input"
+                      type="checkbox"
+                      name="health"
+                      value={option.value}
+                      checked={selectedHealth.includes(option.value)}
+                      onChange={(event) => toggleHealthCondition(option.value, event.target.checked)}
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
                 <label className="eye-insights__checkbox">
                   <input
                     className="eye-insights__checkbox-input"
@@ -127,6 +223,8 @@ export default function EyeInsightsPage() {
                 id="notes"
                 name="notes"
                 placeholder="Add any additional information here"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
               />
             </div>
 
@@ -147,12 +245,19 @@ export default function EyeInsightsPage() {
           </div>
 
           <div className="eye-insights__actions">
+            <div className="eye-insights__messages" aria-live="polite">
+              {errorMessage ? <p className="eye-insights__message eye-insights__message--error">{errorMessage}</p> : null}
+              {successMessage ? (
+                <p className="eye-insights__message eye-insights__message--success">{successMessage}</p>
+              ) : null}
+            </div>
             <button
-              className={`eye-insights__save${consentChecked && filesSelected ? '' : ' eye-insights__save--disabled'}`}
+              className={`eye-insights__save${isSaveDisabled ? ' eye-insights__save--disabled' : ''}`}
               type="button"
-              disabled={!consentChecked || !filesSelected}
+              disabled={isSaveDisabled}
+              onClick={handleSubmit}
             >
-              Save
+              {isSubmitting ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>
