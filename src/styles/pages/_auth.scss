@@ -134,6 +134,29 @@
     transform: translateY(-2px);
     box-shadow: 0 22px 36px rgba(59, 130, 246, 0.28);
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
+  }
+}
+
+.auth-card__messages {
+  min-height: 1.5rem;
+  font-size: 0.88rem;
+  color: colors.$color-text-secondary;
+}
+
+.auth-card__error {
+  color: colors.$color-error;
+  font-weight: type.$font-weight-medium;
+}
+
+.auth-card__success {
+  color: colors.$color-success;
+  font-weight: type.$font-weight-medium;
 }
 
 .auth-card__alt {
