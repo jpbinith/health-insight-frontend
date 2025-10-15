@@ -70,7 +70,9 @@ async function request<TResponse>(
   }
 
   const hasBody = init.body !== undefined && init.body !== null;
-  if (hasBody && !mergedHeaders.has('Content-Type')) {
+  const isFormData =
+    typeof FormData !== 'undefined' && init.body instanceof FormData;
+  if (hasBody && !mergedHeaders.has('Content-Type') && !isFormData) {
     mergedHeaders.set('Content-Type', 'application/json');
   }
 
@@ -113,6 +115,16 @@ export const apiClient = {
       ...init,
       method: 'POST',
       body: jsonBody(payload),
+    }),
+  postForm: <TResponse>(
+    path: string,
+    formData: FormData,
+    init?: Omit<RequestInit, 'body'>
+  ) =>
+    request<TResponse>(path, {
+      ...init,
+      method: 'POST',
+      body: formData,
     }),
   put: <TResponse, TPayload>(
     path: string,

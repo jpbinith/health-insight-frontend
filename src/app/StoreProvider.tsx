@@ -42,22 +42,26 @@ const buildPreloadedState = (token?: string | null) => {
 
 export default function StoreProvider({ children, initialToken }: StoreProviderProps) {
   const router = useRouter();
-  const storeRef = useRef<AppStore>();
+  const storeRef = useRef<AppStore | null>(null);
   if (!storeRef.current) {
     storeRef.current = makeStore(buildPreloadedState(initialToken));
+  }
+  const store = storeRef.current;
+  if (!store) {
+    throw new Error('Failed to initialise application store.');
   }
 
   useEffect(() => {
     const storedToken = loadStoredAuthToken();
     const storedExpiry = loadStoredTokenExpiry();
     const remember = loadRememberPreference();
-    const state = storeRef.current?.getState();
+    const state = store.getState();
     if (!state) {
       return;
     }
 
     if (remember !== state.auth.remember) {
-      storeRef.current?.dispatch(setRememberPreference(remember));
+      store.dispatch(setRememberPreference(remember));
     }
 
     const nextToken = storedToken ?? state.auth.token;
@@ -67,7 +71,7 @@ export default function StoreProvider({ children, initialToken }: StoreProviderP
       (nextToken ? getTokenExpiry(nextToken) : null);
 
     if (nextToken && (!state.auth.token || state.auth.token !== nextToken)) {
-      storeRef.current?.dispatch(
+      store.dispatch(
         setCredentials({
           token: nextToken,
           user: state.auth.user,
@@ -76,20 +80,15 @@ export default function StoreProvider({ children, initialToken }: StoreProviderP
         })
       );
     } else if (typeof nextExpires === 'number' && nextExpires !== state.auth.expiresAt) {
-      storeRef.current?.dispatch(setTokenExpiry(nextExpires));
+      store.dispatch(setTokenExpiry(nextExpires));
     }
 
     if (nextToken) {
       persistAuthToken(nextToken, { remember, expiresAt: nextExpires ?? null });
     }
-  }, []);
+  }, [store]);
 
   useEffect(() => {
-    const store = storeRef.current;
-    if (!store) {
-      return;
-    }
-
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const scheduleLogout = () => {
@@ -140,7 +139,7 @@ export default function StoreProvider({ children, initialToken }: StoreProviderP
       }
       unsubscribe();
     };
-  }, [router]);
+  }, [router, store]);
 
-  return <Provider store={storeRef.current}>{children}</Provider>;
+  return <Provider store={store}>{children}</Provider>;
 }
