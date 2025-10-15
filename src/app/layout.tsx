@@ -4,6 +4,8 @@ import { Inter } from 'next/font/google';
 import '../styles/main.scss';
 import { Header } from '../components/Header/Header';
 import { Footer } from '../components/Footer/Footer';
+import { cookies } from 'next/headers';
+import StoreProvider from './StoreProvider';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
@@ -18,14 +20,18 @@ export default function RootLayout({
 }: {
   children: ReactNode;
 }) {
+  const authToken = cookies().get('authToken')?.value ?? null;
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="o-page">
-          <Header />
-          <main>{children}</main>
-          <Footer />
-        </div>
+        <StoreProvider initialToken={authToken}>
+          <div className="o-page">
+            <Header />
+            <main>{children}</main>
+            <Footer />
+          </div>
+        </StoreProvider>
       </body>
     </html>
   );
