@@ -158,23 +158,42 @@ export default function SkinHealthResultsPage() {
           ))}
         </section>
 
-        <button type="button" className="skin-results__cta" onClick={handleAnalyzeAnother}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 5v14" />
-            <path d="M18 11l-6-6-6 6" />
-            <path d="M6 13l6 6 6-6" />
-          </svg>
-          Analyze Another Image
-        </button>
+        <div className="skin-results__actions">
+          <button type="button" className="skin-results__cta" onClick={handleAnalyzeAnother}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3.5 20.5 12 12 20.5 3.5 12 12 3.5Z" />
+              <path d="M12 7.5 16.5 12 12 16.5 7.5 12 12 7.5Z" />
+              <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+            </svg>
+            Analyze Another Image
+          </button>
+          <button type="button" className="skin-results__cta skin-results__cta--secondary">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 21h14a1 1 0 0 0 1-1V8.5L15.5 3H5a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1Z" />
+              <path d="M9 13h6" />
+              <path d="M12 10v6" />
+            </svg>
+            Save Analysis
+          </button>
+        </div>
 
         <p className="analysis-page__disclaimer skin-results__disclaimer">
           <strong>Disclaimer:</strong> HealthSight provides informational insights and is not a substitute for professional
