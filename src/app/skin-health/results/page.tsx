@@ -160,24 +160,7 @@ export default function SkinHealthResultsPage() {
         </section>
 
         <div className="skin-results__actions">
-          <button type="button" className="skin-results__cta" onClick={handleAnalyzeAnother}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 3.5 20.5 12 12 20.5 3.5 12 12 3.5Z" />
-              <path d="M12 7.5 16.5 12 12 16.5 7.5 12 12 7.5Z" />
-              <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
-            </svg>
-            Analyze Another Image
-          </button>
-          <button type="button" className="skin-results__cta skin-results__cta--secondary">
+          <button type="button" className="skin-results__cta skin-results__cta--primary">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -193,6 +176,27 @@ export default function SkinHealthResultsPage() {
               <path d="M12 10v6" />
             </svg>
             Save Analysis
+          </button>
+          <button
+            type="button"
+            className="skin-results__cta skin-results__cta--secondary"
+            onClick={handleAnalyzeAnother}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3.5 20.5 12 12 20.5 3.5 12 12 3.5Z" />
+              <path d="M12 7.5 16.5 12 12 16.5 7.5 12 12 7.5Z" />
+              <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+            </svg>
+            Analyze Another Image
           </button>
         </div>
 
