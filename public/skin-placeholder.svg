@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Skin placeholder">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f1f5f9" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="480" rx="36" fill="url(#bgGradient)" />
+  <g fill="none" stroke="#cbd5f5" stroke-width="6" stroke-linecap="round">
+    <path d="M180 160c30-48 90-78 140-78s110 30 140 78" opacity="0.65" />
+    <path d="M220 318c32 24 64 36 100 36s68-12 100-36" opacity="0.55" />
+  </g>
+  <circle cx="260" cy="232" r="30" fill="#64748b" opacity="0.18" />
+  <circle cx="380" cy="232" r="30" fill="#64748b" opacity="0.18" />
+  <rect x="200" y="200" width="240" height="180" rx="28" fill="#fef3c7" opacity="0.18" />
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="'Inter', sans-serif" font-size="28" fill="#94a3b8">
+    Skin image preview
+  </text>
+</svg>

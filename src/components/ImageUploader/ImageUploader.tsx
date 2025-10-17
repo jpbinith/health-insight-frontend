@@ -22,6 +22,7 @@ type ImageUploaderProps = {
   showFileList?: boolean;
   removeLabel?: string;
   onChange?: (files: File[]) => void;
+  onPreviewChange?: (previewSrc: string | null) => void;
 };
 
 function mergeClasses(...values: Array<string | undefined | false>) {
@@ -41,11 +42,17 @@ export function ImageUploader({
   showFileList = false,
   removeLabel = 'Remove',
   onChange,
+  onPreviewChange,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+
+  const updatePreview = (next: string | null) => {
+    setPreviewSrc(next);
+    onPreviewChange?.(next);
+  };
 
   const updateFiles = (next: File[]) => {
     setFiles(next);
@@ -63,11 +70,11 @@ export function ImageUploader({
     const next = multiple ? [...files, ...incomingFiles] : [incomingFiles[0]];
     updateFiles(next);
 
-    if (showPreviewImage && next[0]) {
+    if ((showPreviewImage || onPreviewChange) && next[0]) {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (typeof event.target?.result === 'string') {
-          setPreviewSrc(event.target.result);
+          updatePreview(event.target.result);
         }
       };
       reader.readAsDataURL(next[0]);
@@ -94,17 +101,17 @@ export function ImageUploader({
   const removeFile = (index: number) => {
     const next = files.filter((_, idx) => idx !== index);
     updateFiles(next);
-    if (showPreviewImage) {
+    if (showPreviewImage || onPreviewChange) {
       if (next[0]) {
         const reader = new FileReader();
         reader.onload = (event) => {
           if (typeof event.target?.result === 'string') {
-            setPreviewSrc(event.target.result);
+            updatePreview(event.target.result);
           }
         };
         reader.readAsDataURL(next[0]);
       } else {
-        setPreviewSrc(null);
+        updatePreview(null);
       }
     }
     if (inputRef.current && next.length === 0) {
@@ -114,7 +121,7 @@ export function ImageUploader({
 
   const clearAll = () => {
     updateFiles([]);
-    setPreviewSrc(null);
+    updatePreview(null);
     if (inputRef.current) {
       inputRef.current.value = '';
     }

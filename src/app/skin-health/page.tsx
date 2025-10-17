@@ -1,11 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 import { ImageUploader } from '../../components/ImageUploader/ImageUploader';
 
 export default function SkinHealthPage() {
+  const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const hasSelection = selectedFiles.length > 0;
+
+  const handleStartAnalysis = () => {
+    if (!hasSelection) {
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      if (previewSrc) {
+        sessionStorage.setItem('skin-health-upload-preview', previewSrc);
+      } else {
+        sessionStorage.removeItem('skin-health-upload-preview');
+      }
+    }
+    router.push('/skin-health/results');
+  };
 
   return (
     <section className="analysis-page skin-upload">
@@ -27,6 +45,7 @@ export default function SkinHealthPage() {
             hideDropzoneOnSelection
             showPreviewImage
             onChange={setSelectedFiles}
+            onPreviewChange={setPreviewSrc}
             className="analysis-card__uploader analysis-card__uploader--skin"
           />
 
@@ -34,6 +53,7 @@ export default function SkinHealthPage() {
             type="button"
             className={`analysis-card__cta${hasSelection ? ' analysis-card__cta--enabled' : ''}`}
             disabled={!hasSelection}
+            onClick={handleStartAnalysis}
           >
             Start Analysis
             <svg
