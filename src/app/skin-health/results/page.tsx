@@ -40,6 +40,7 @@ const mockSkinResults: SkinConditionResult[] = [
       { src: uploadedImagePlaceholder, alt: 'Eczema example presentation on cheek' },
       { src: uploadedImagePlaceholder, alt: 'Eczema example presentation on forehead' },
       { src: uploadedImagePlaceholder, alt: 'Eczema example presentation near jawline' },
+      { src: uploadedImagePlaceholder, alt: 'Eczema example presentation near jawline' },
     ],
     isTopMatch: true,
   },

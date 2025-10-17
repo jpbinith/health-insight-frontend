@@ -133,12 +133,119 @@
   gap: 0.85rem;
 }
 
+.skin-result-card__gallery--scroll {
+  --skin-result-card-thumb-gap: 0.85rem;
+  --skin-result-card-thumb-min: 6.25rem;
+  --skin-result-card-thumb-max: 11.5rem;
+  position: relative;
+  display: block;
+}
+
+.skin-result-card__gallery-viewport {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max(
+    var(--skin-result-card-thumb-min),
+    calc((100% - 2 * var(--skin-result-card-thumb-gap)) / 3)
+  );
+  gap: var(--skin-result-card-thumb-gap);
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 1rem;
+  scrollbar-width: none;
+  padding-bottom: 0.25rem;
+  margin-bottom: -0.25rem;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black clamp(0.35rem, 1.2vw, 0.8rem),
+    black calc(100% - clamp(0.35rem, 1.2vw, 0.8rem)),
+    transparent 100%
+  );
+}
+
+.skin-result-card__gallery-track {
+  display: contents;
+}
+
+.skin-result-card__gallery--scroll .skin-result-card__gallery-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.skin-result-card__gallery--scroll .skin-result-card__gallery-item {
+  width: 100%;
+}
+
 .skin-result-card__gallery-item {
   border-radius: 1rem;
   overflow: hidden;
   background: rgba(colors.$color-text-primary, 0.04);
   aspect-ratio: 4 / 3;
   display: flex;
+}
+
+.skin-result-card__gallery-nav {
+  border: none;
+  background: rgba(colors.$color-text-primary, 0.08);
+  color: colors.$color-text-primary;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.skin-result-card__gallery-nav--prev {
+  left: -1.4rem;
+}
+
+.skin-result-card__gallery-nav--next {
+  right: -1.4rem;
+}
+
+.skin-result-card__gallery-nav svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.skin-result-card__gallery-nav:not(:disabled):hover,
+.skin-result-card__gallery-nav:not(:disabled):focus-visible {
+  background: rgba(59, 130, 246, 0.18);
+  color: colors.$color-primary;
+  transform: scale(1.05);
+}
+
+.skin-result-card__gallery-nav:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.24);
+}
+
+.skin-result-card__gallery-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .skin-result-card__gallery--scroll {
+    --skin-result-card-thumb-min: 5.5rem;
+    --skin-result-card-thumb-max: 9rem;
+  }
+
+  .skin-result-card__gallery-nav--prev {
+    left: -1rem;
+  }
+
+  .skin-result-card__gallery-nav--next {
+    right: -1rem;
+  }
 }
 
 .skin-result-card__gallery-trigger {
@@ -149,7 +256,6 @@
   height: 100%;
   background: transparent;
   border-radius: inherit;
-  // cursor: zoom-in;
   position: relative;
   display: block;
 }
@@ -248,7 +354,6 @@
   inset: 0;
   background: rgba(15, 23, 42, 0.62);
   backdrop-filter: blur(6px);
-  cursor: zoom-out;
 }
 
 .skin-result-card__lightbox-content {
@@ -308,6 +413,48 @@
   border-radius: 1.2rem;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
+}
+
+.skin-result-card__lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: rgba(15, 23, 42, 0.45);
+  color: colors.$color-text-inverted;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  pointer-events: auto;
+}
+
+.skin-result-card__lightbox-nav svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.skin-result-card__lightbox-nav:hover,
+.skin-result-card__lightbox-nav:focus-visible {
+  background: rgba(59, 130, 246, 0.65);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.skin-result-card__lightbox-nav:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
+.skin-result-card__lightbox-nav--prev {
+  left: 1rem;
+}
+
+.skin-result-card__lightbox-nav--next {
+  right: 1rem;
 }
 
 .skin-result-card__lightbox-image {

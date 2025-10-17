@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 
 type GalleryImage = {
   src: string;
@@ -33,29 +33,164 @@ export function SkinResultCard({
 }: SkinResultCardProps) {
   const detailsId = useId();
   const modalLabelId = useId();
-  const [activeImage, setActiveImage] = useState<GalleryImage | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
+  const galleryViewportRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+  const galleryHasOverflow = galleryImages.length > 3;
+  const activeImage = activeImageIndex !== null ? galleryImages[activeImageIndex] : null;
+  const canLightboxGoPrev = activeImageIndex !== null && activeImageIndex > 0;
+  const canLightboxGoNext = activeImageIndex !== null && activeImageIndex < galleryImages.length - 1;
 
   useEffect(() => {
-    if (!activeImage) {
+    setActiveImageIndex((current) => {
+      if (current === null) {
+        return null;
+      }
+
+      if (galleryImages.length === 0) {
+        return null;
+      }
+
+      return Math.min(current, galleryImages.length - 1);
+    });
+  }, [galleryImages.length]);
+
+  const updateGalleryNavState = useCallback(() => {
+    if (!galleryHasOverflow) {
+      setCanScrollPrev(false);
+      setCanScrollNext(false);
+      return;
+    }
+
+    const viewport = galleryViewportRef.current;
+    if (!viewport) {
+      setCanScrollPrev(false);
+      setCanScrollNext(false);
+      return;
+    }
+
+    const { scrollLeft, scrollWidth, clientWidth } = viewport;
+    const epsilon = 1;
+    setCanScrollPrev(scrollLeft > epsilon);
+    setCanScrollNext(scrollLeft + clientWidth < scrollWidth - epsilon);
+  }, [galleryHasOverflow]);
+
+  const goToNextImage = useCallback(() => {
+    setActiveImageIndex((current) => {
+      if (current === null) {
+        return current;
+      }
+
+      const nextIndex = current + 1;
+      if (nextIndex < galleryImages.length) {
+        return nextIndex;
+      }
+
+      return current;
+    });
+  }, [galleryImages.length]);
+
+  const goToPreviousImage = useCallback(() => {
+    setActiveImageIndex((current) => {
+      if (current === null) {
+        return current;
+      }
+
+      const previousIndex = current - 1;
+      if (previousIndex >= 0) {
+        return previousIndex;
+      }
+
+      return current;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (activeImageIndex === null) {
       return undefined;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setActiveImage(null);
+        setActiveImageIndex(null);
+        return;
+      }
+
+      if (event.key === 'ArrowRight' && canLightboxGoNext) {
+        event.preventDefault();
+        goToNextImage();
+        return;
+      }
+
+      if (event.key === 'ArrowLeft' && canLightboxGoPrev) {
+        event.preventDefault();
+        goToPreviousImage();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeImage]);
+  }, [activeImageIndex, canLightboxGoNext, canLightboxGoPrev, goToNextImage, goToPreviousImage]);
 
-  const openLightbox = (image: GalleryImage) => {
-    setActiveImage(image);
+  useEffect(() => {
+    if (!isExpanded) {
+      const viewport = galleryViewportRef.current;
+      if (viewport) {
+        viewport.scrollTo({ left: 0 });
+      }
+      updateGalleryNavState();
+      return;
+    }
+
+    updateGalleryNavState();
+
+    if (!galleryHasOverflow) {
+      return undefined;
+    }
+
+    const viewport = galleryViewportRef.current;
+    if (!viewport) {
+      return undefined;
+    }
+
+    const handleScroll = () => updateGalleryNavState();
+    const handleResize = () => updateGalleryNavState();
+
+    viewport.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      viewport.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [galleryHasOverflow, galleryImages.length, isExpanded, updateGalleryNavState]);
+
+  const scrollGallery = (direction: -1 | 1) => {
+    const viewport = galleryViewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const scrollAmount = viewport.clientWidth;
+    viewport.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth',
+    });
+
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(updateGalleryNavState);
+    } else {
+      updateGalleryNavState();
+    }
+  };
+
+  const openLightbox = (index: number) => {
+    setActiveImageIndex(index);
   };
 
   const closeLightbox = () => {
-    setActiveImage(null);
+    setActiveImageIndex(null);
   };
   const cardClassName = [
     'skin-result-card',
@@ -67,6 +202,43 @@ export function SkinResultCard({
     .join(' ');
 
   const formattedConfidence = `${Math.round(confidence)}% Confidence`;
+  const galleryViewportClassName = 'skin-result-card__gallery skin-result-card__gallery--scroll';
+  const galleryItems = galleryImages.map((image, index) => (
+    <div className="skin-result-card__gallery-item" role="listitem" key={`${image.src}-${index}`}>
+      <button
+        type="button"
+        className="skin-result-card__gallery-trigger"
+        onClick={() => openLightbox(index)}
+        aria-label={`View ${image.alt} in full screen`}
+      >
+        <div className="skin-result-card__gallery-media">
+          <Image
+            className="skin-result-card__gallery-image"
+            src={image.src}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 40vw, 180px"
+          />
+          <span className="skin-result-card__gallery-icon" aria-hidden="true">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4 9V5a1 1 0 0 1 1-1h4" />
+              <path d="m5 5 4.5 4.5" />
+              <path d="M20 15v4a1 1 0 0 1-1 1h-4" />
+              <path d="M19 19 14.5 14.5" />
+            </svg>
+          </span>
+        </div>
+      </button>
+    </div>
+  ));
 
   return (
     <article className={cardClassName}>
@@ -104,43 +276,56 @@ export function SkinResultCard({
       {isExpanded ? (
         <div className="skin-result-card__details" id={detailsId}>
           {galleryImages.length > 0 ? (
-            <div className="skin-result-card__gallery" role="list">
-              {galleryImages.map((image, index) => (
-                <div className="skin-result-card__gallery-item" role="listitem" key={`${image.src}-${index}`}>
-                  <button
-                    type="button"
-                    className="skin-result-card__gallery-trigger"
-                    onClick={() => openLightbox(image)}
-                    aria-label={`View ${image.alt} in full screen`}
+            <div className={galleryViewportClassName}>
+              {galleryHasOverflow ? (
+                <button
+                  type="button"
+                  className="skin-result-card__gallery-nav skin-result-card__gallery-nav--prev"
+                  onClick={() => scrollGallery(-1)}
+                  aria-label="Scroll gallery backward"
+                  disabled={!canScrollPrev}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
                   >
-                    <div className="skin-result-card__gallery-media">
-                      <Image
-                        className="skin-result-card__gallery-image"
-                        src={image.src}
-                        alt=""
-                        fill
-                        sizes="(max-width: 768px) 40vw, 180px"
-                      />
-                      <span className="skin-result-card__gallery-icon" aria-hidden="true">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M4 9V5a1 1 0 0 1 1-1h4" />
-                          <path d="m5 5 4.5 4.5" />
-                          <path d="M20 15v4a1 1 0 0 1-1 1h-4" />
-                          <path d="M19 19 14.5 14.5" />
-                        </svg>
-                      </span>
-                    </div>
-                  </button>
+                    <path d="m15 6-6 6 6 6" />
+                  </svg>
+                </button>
+              ) : null}
+              <div className="skin-result-card__gallery-viewport" ref={galleryViewportRef}>
+                <div className="skin-result-card__gallery-track" role="list">
+                  {galleryItems}
                 </div>
-              ))}
+              </div>
+              {galleryHasOverflow ? (
+                <button
+                  type="button"
+                  className="skin-result-card__gallery-nav skin-result-card__gallery-nav--next"
+                  onClick={() => scrollGallery(1)}
+                  aria-label="Scroll gallery forward"
+                  disabled={!canScrollNext}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m9 6 6 6-6 6" />
+                  </svg>
+                </button>
+              ) : null}
             </div>
           ) : null}
           <p className="skin-result-card__description">{description}</p>
@@ -193,6 +378,48 @@ export function SkinResultCard({
                 sizes="(max-width: 768px) 95vw, 70vw"
                 className="skin-result-card__lightbox-image"
               />
+              {canLightboxGoPrev ? (
+                <button
+                  type="button"
+                  className="skin-result-card__lightbox-nav skin-result-card__lightbox-nav--prev"
+                  onClick={goToPreviousImage}
+                  aria-label="View previous image"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m15 6-6 6 6 6" />
+                  </svg>
+                </button>
+              ) : null}
+              {canLightboxGoNext ? (
+                <button
+                  type="button"
+                  className="skin-result-card__lightbox-nav skin-result-card__lightbox-nav--next"
+                  onClick={goToNextImage}
+                  aria-label="View next image"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m9 6 6 6-6 6" />
+                  </svg>
+                </button>
+              ) : null}
             </div>
           </div>
         </div>
