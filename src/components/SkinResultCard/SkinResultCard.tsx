@@ -164,8 +164,12 @@ export function SkinResultCard({
               <h4 className="skin-result-card__lightbox-title" id={modalLabelId}>
                 {activeImage.alt || title}
               </h4>
-              <button type="button" className="skin-result-card__lightbox-close" onClick={closeLightbox}>
-                <span className="visually-hidden">Close full screen view</span>
+              <button
+                type="button"
+                className="skin-result-card__lightbox-close"
+                onClick={closeLightbox}
+                aria-label="Close full screen view"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
