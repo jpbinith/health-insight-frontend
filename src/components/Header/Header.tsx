@@ -12,7 +12,7 @@ type NavItem = {
   href: string;
 };
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   { label: 'Skin Health', href: '/skin-health' },
   { label: 'Eye Health', href: '/eye-insights' },
 ];
@@ -120,6 +120,13 @@ export function Header() {
       document.removeEventListener('keydown', handleKeydown);
     };
   }, [closeMenu, isMenuOpen]);
+
+  const navItems = useMemo(() => {
+    if (token) {
+      return [...baseNavItems, { label: 'History', href: '/history' }];
+    }
+    return baseNavItems;
+  }, [token]);
 
   return (
     <header className="c-header">

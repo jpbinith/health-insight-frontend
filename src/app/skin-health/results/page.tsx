@@ -192,9 +192,8 @@ export default function SkinHealthResultsPage() {
               strokeLinejoin="round"
               aria-hidden="true"
             >
-              <path d="M12 3.5 20.5 12 12 20.5 3.5 12 12 3.5Z" />
-              <path d="M12 7.5 16.5 12 12 16.5 7.5 12 12 7.5Z" />
-              <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+              <path d="M21 12a9 9 0 1 1-9-9" />
+              <path d="M21 3v9h-9" />
             </svg>
             Analyze Another Image
           </button>
