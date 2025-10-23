@@ -5,91 +5,16 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { SkinResultCard } from '../../../components/SkinResultCard/SkinResultCard';
-
-type SkinConditionResult = {
-  id: string;
-  title: string;
-  label: string;
-  confidence: number;
-  description: string;
-  symptoms: string[];
-  galleryImages?: {
-    src: string;
-    alt: string;
-  }[];
-  isTopMatch?: boolean;
-};
+import type { SkinAnalysisResult } from '../types';
 
 const uploadedImagePlaceholder = '/skin-placeholder.svg';
 
-const mockSkinResults: SkinConditionResult[] = [
-  {
-    id: 'eczema',
-    title: 'Eczema (Atopic Dermatitis)',
-    label: 'Top Match',
-    confidence: 92,
-    description:
-      'A chronic inflammatory condition that makes skin red, itchy, and dry. Flares can be triggered by stress, allergens, or irritants and often require ongoing management.',
-    symptoms: [
-      'Dry, cracked, or scaly patches of skin',
-      'Itching (pruritus), especially severe at night',
-      'Red to brownish-gray patches on the hands, feet, ankles, wrists, neck, and upper chest',
-      'Small, raised bumps that may leak fluid when scratched',
-    ],
-    galleryImages: [
-      { src: uploadedImagePlaceholder, alt: 'Eczema example presentation on cheek' },
-      { src: uploadedImagePlaceholder, alt: 'Eczema example presentation on forehead' },
-      { src: uploadedImagePlaceholder, alt: 'Eczema example presentation near jawline' },
-      { src: uploadedImagePlaceholder, alt: 'Eczema example presentation near jawline' },
-    ],
-    isTopMatch: true,
-  },
-  {
-    id: 'psoriasis',
-    title: 'Psoriasis',
-    label: 'Prediction #2',
-    confidence: 78,
-    description:
-      'An autoimmune skin disorder that speeds up skin cell growth, leading to thick, silvery scales and itchy, dry patches. It is often cyclical, with flaring periods followed by remission.',
-    symptoms: [
-      'Raised, inflamed patches covered with silvery scales',
-      'Dry, cracked skin that may bleed',
-      'Soreness, burning, or itching around affected areas',
-      'Thickened or pitted nails',
-    ],
-    galleryImages: [
-      { src: uploadedImagePlaceholder, alt: 'Psoriasis example plaque on elbow' },
-      { src: uploadedImagePlaceholder, alt: 'Psoriasis example presentation on knees' },
-      { src: uploadedImagePlaceholder, alt: 'Psoriasis example affecting scalp' },
-    ],
-  },
-  {
-    id: 'rosacea',
-    title: 'Rosacea',
-    label: 'Prediction #3',
-    confidence: 65,
-    description:
-      'A long-term inflammatory skin condition that causes redness and visible blood vessels on the central face. It can be triggered by temperature changes, spicy foods, alcohol, or stress.',
-    symptoms: [
-      'Persistent facial redness, often in the central face',
-      'Small, pus-filled bumps resembling acne',
-      'Visible facial blood vessels',
-      'Facial burning or stinging sensations',
-    ],
-    galleryImages: [
-      { src: uploadedImagePlaceholder, alt: 'Rosacea example central facial redness' },
-      { src: uploadedImagePlaceholder, alt: 'Rosacea example with visible vessels' },
-      { src: uploadedImagePlaceholder, alt: 'Rosacea example flare on cheeks' },
-    ],
-  },
-];
-
 export default function SkinHealthResultsPage() {
   const router = useRouter();
-  const [expandedConditionId, setExpandedConditionId] = useState<string | null>(
-    mockSkinResults[0]?.id ?? null,
-  );
+  const [results, setResults] = useState<SkinAnalysisResult[]>([]);
+  const [expandedConditionId, setExpandedConditionId] = useState<string | null>(null);
   const [uploadedImageSrc, setUploadedImageSrc] = useState<string | null>(null);
+  const [isLoadingResults, setIsLoadingResults] = useState(true);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -100,6 +25,36 @@ export default function SkinHealthResultsPage() {
       setUploadedImageSrc(stored);
     } else {
       setUploadedImageSrc(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      const storedResults = sessionStorage.getItem('skin-health-analysis-results');
+      if (storedResults) {
+        const parsed = JSON.parse(storedResults) as SkinAnalysisResult[];
+        if (Array.isArray(parsed)) {
+          const normalized = parsed.map((result, index) => ({
+            ...result,
+            isTopMatch: index === 0,
+          }));
+          setResults(normalized);
+          setExpandedConditionId(normalized[0]?.id ?? null);
+        } else {
+          setResults([]);
+        }
+      } else {
+        setResults([]);
+      }
+    } catch (error) {
+      console.error('Failed to load skin health results from session storage', error);
+      setResults([]);
+    } finally {
+      setIsLoadingResults(false);
     }
   }, []);
 
@@ -143,20 +98,48 @@ export default function SkinHealthResultsPage() {
         </section>
 
         <section className="skin-results__list" aria-label="Predicted skin conditions">
-          {mockSkinResults.map((condition) => (
-            <SkinResultCard
-              key={condition.id}
-              rankLabel={condition.label}
-              title={condition.title}
-              confidence={condition.confidence}
-              description={condition.description}
-              symptoms={condition.symptoms}
-              galleryImages={condition.galleryImages}
-              isExpanded={expandedConditionId === condition.id}
-              onToggle={() => handleToggle(condition.id)}
-              isTopMatch={condition.isTopMatch}
-            />
-          ))}
+          {!isLoadingResults && results.length === 0 ? (
+            <div className="skin-results__empty">
+              <h2>No analysis results found</h2>
+              <p>
+                It looks like there are no recent skin analysis results to display. Please upload a new image to start a
+                fresh analysis.
+              </p>
+              <button type="button" className="skin-results__cta skin-results__cta--secondary" onClick={handleAnalyzeAnother}>
+                Start New Analysis
+              </button>
+            </div>
+          ) : (
+            results.map((condition, index) => {
+              const hasGalleryImages = Array.isArray(condition.galleryImages) && condition.galleryImages.length > 0;
+              const galleryImages = hasGalleryImages
+                ? condition.galleryImages?.map((image) => ({
+                    src: image.src,
+                    alt: image.alt ?? condition.title,
+                  }))
+                : [
+                    {
+                      src: uploadedImageSrc ?? uploadedImagePlaceholder,
+                      alt: condition.title,
+                    },
+                  ];
+
+              return (
+                <SkinResultCard
+                  key={`${condition.id}-${index}`}
+                  rankLabel={condition.label}
+                  title={condition.title}
+                  confidence={condition.confidence}
+                  description={condition.description ?? ''}
+                  symptoms={condition.symptoms ?? []}
+                  galleryImages={galleryImages}
+                  isExpanded={expandedConditionId === condition.id}
+                  onToggle={() => handleToggle(condition.id)}
+                  isTopMatch={condition.isTopMatch}
+                />
+              );
+            })
+          )}
         </section>
 
         <div className="skin-results__actions">

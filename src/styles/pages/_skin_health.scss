@@ -48,6 +48,27 @@
   gap: 1.3rem;
 }
 
+.skin-results__empty {
+  display: grid;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 1.5rem;
+  background: rgba(colors.$color-text-primary, 0.04);
+  color: colors.$color-text-secondary;
+}
+
+.skin-results__empty h2 {
+  font-size: 1.35rem;
+  color: colors.$color-text-primary;
+  font-weight: type.$font-weight-semibold;
+}
+
+.skin-results__empty p {
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
 .skin-results__cta {
   display: inline-flex;
   align-items: center;
