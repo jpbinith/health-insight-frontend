@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { SkinResultCard } from '../../../components/SkinResultCard/SkinResultCard';
-import type { SkinAnalysisResult } from '../types';
+import type { SkinAnalysisResult } from 'web/lib/api/skinAnalysis';
 
 const uploadedImagePlaceholder = '/skin-placeholder.svg';
 

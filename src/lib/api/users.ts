@@ -2,18 +2,20 @@
 
 import { apiClient } from './client';
 
-export type CreateUserPayload = {
+export interface CreateUserRequest {
   fullName: string;
   email: string;
   password: string;
-};
+}
 
-export type CreateUserResponse = {
+export interface CreateUserResponse {
   id: string;
   fullName: string;
   email: string;
-  createdAt?: string;
-};
+  createdAt: string;
+}
+
+export type CreateUserPayload = CreateUserRequest;
 
 export const createUser = (payload: CreateUserPayload) =>
-  apiClient.post<CreateUserResponse | null, CreateUserPayload>('/users', payload);
+  apiClient.post<CreateUserResponse, CreateUserPayload>('/users', payload);

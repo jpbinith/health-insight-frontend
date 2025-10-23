@@ -4,138 +4,68 @@ import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { ImageUploader } from '../../components/ImageUploader/ImageUploader';
-import { analyseSkinImage } from '../../lib/api/skinAnalysis';
-import type { SkinAnalysisGalleryImage, SkinAnalysisResult } from './types';
+import { analyseSkinImage } from 'web/lib/api/skinAnalysis';
+import type { SkinAnalysisResult } from 'web/lib/api/skinAnalysis';
+
+type SkinAnalysisGalleryImage = SkinAnalysisResult['galleryImages'][number];
+type PredictionLabel = SkinAnalysisResult['label'];
 
 type RawAnalysisResponse = {
-  results?: unknown;
-  predictions?: unknown;
-  [key: string]: unknown;
+  results?: SkinAnalysisResult[];
+  predictions?: SkinAnalysisResult[];
 };
 
-const normalizeAnalysisResponse = (payload: unknown): SkinAnalysisResult[] => {
-  const collected: unknown[] = [];
+const normalizeAnalysisResponse = (payload: RawAnalysisResponse | SkinAnalysisResult[]): SkinAnalysisResult[] => {
+  const collected: SkinAnalysisResult[] = [];
 
   if (Array.isArray(payload)) {
     collected.push(...payload);
-  } else if (payload && typeof payload === 'object') {
-    const data = payload as RawAnalysisResponse;
-    if (Array.isArray(data.results)) {
-      collected.push(...data.results);
-    } else if (Array.isArray(data.predictions)) {
-      collected.push(...data.predictions);
+  } else {
+    if (Array.isArray(payload.results)) {
+      collected.push(...payload.results);
+    } else if (Array.isArray(payload.predictions)) {
+      collected.push(...payload.predictions);
     }
   }
 
+  const buildLabel = (value: PredictionLabel | undefined, index: number): PredictionLabel => {
+    if (value) {
+      return value;
+    }
+
+    if (index === 0) {
+      return 'Top Match';
+    }
+
+    return `Prediction #${index + 1}`;
+  };
+
   return collected.map((item, index) => {
-    if (!item || typeof item !== 'object') {
-      return {
-        id: `analysis-${index}`,
-        label: `Prediction #${index + 1}`,
-        title: `Prediction #${index + 1}`,
-        confidence: 0,
-        description: '',
-        symptoms: [],
-        galleryImages: [],
-        isTopMatch: index === 0,
-      };
-    }
-
-    const record = item as Record<string, unknown>;
-
-    const confidenceCandidates: unknown[] = [
-      record.confidence,
-      record.confidenceScore,
-      (record as Record<string, unknown>)['confidence_score'],
-      record.score,
-      record.probability,
-    ];
-
-    let confidence = 0;
-
-    for (const candidate of confidenceCandidates) {
-      if (candidate === undefined || candidate === null) {
-        continue;
-      }
-
-      let numericValue: number | null = null;
-
-      if (typeof candidate === 'number') {
-        numericValue = candidate;
-      } else if (typeof candidate === 'string') {
-        const sanitized = candidate.replace(/%/g, '').trim();
-        const parsed = Number.parseFloat(sanitized);
-        if (!Number.isNaN(parsed)) {
-          numericValue = parsed;
-        }
-      }
-
-      if (numericValue !== null && Number.isFinite(numericValue)) {
-        confidence =
-          numericValue > 0 && numericValue < 1 ? numericValue * 100 : numericValue;
-        break;
-      }
-    }
-
-    const rawSymptoms = record.symptoms;
-    const symptoms =
-      Array.isArray(rawSymptoms) && rawSymptoms.every((value) => typeof value === 'string')
-        ? (rawSymptoms as string[])
-        : [];
-
-    const rawImages =
-      (Array.isArray(record.galleryImages) ? record.galleryImages : undefined) ??
-      (Array.isArray(record.images) ? record.images : undefined);
-
-    const galleryImages = Array.isArray(rawImages)
-      ? rawImages.reduce<SkinAnalysisGalleryImage[]>((accumulator, image) => {
+    const galleryImages = Array.isArray(item.galleryImages)
+      ? item.galleryImages.reduce<SkinAnalysisGalleryImage[]>((accumulator, image) => {
           if (!image || typeof image !== 'object') {
             return accumulator;
           }
 
-          const details = image as Record<string, unknown>;
-          const src = details.src ?? details.url;
+          const { src, alt = null } = image as SkinAnalysisGalleryImage & { alt?: string | null };
 
           if (typeof src !== 'string' || !src) {
             return accumulator;
           }
 
-          accumulator.push({
-            src,
-            alt: typeof details.alt === 'string' ? details.alt : null,
-          });
+          accumulator.push({ src, alt });
 
           return accumulator;
         }, [])
       : [];
 
-    const id =
-      (typeof record.id === 'string' && record.id) ||
-      (typeof record.conditionId === 'string' && record.conditionId) ||
-      `analysis-${index}`;
-
-    const title =
-      (typeof record.title === 'string' && record.title) ||
-      (typeof record.condition === 'string' && record.condition) ||
-      `Prediction #${index + 1}`;
-
-    const label =
-      (typeof record.label === 'string' && record.label) ||
-      (typeof record.rankLabel === 'string' && record.rankLabel) ||
-      (index === 0 ? 'Top Match' : `Prediction #${index + 1}`);
-
-    const description =
-      (typeof record.description === 'string' && record.description) ||
-      (typeof record.summary === 'string' && record.summary) ||
-      '';
-
     return {
-      id,
-      label,
-      title,
-      confidence,
-      description,
-      symptoms,
+      id: item.id,
+      label: buildLabel(item.label, index),
+      title: item.title,
+      confidence: item.confidence,
+      description: item.description,
+      symptoms: item.symptoms,
       galleryImages,
       isTopMatch: index === 0,
     };
