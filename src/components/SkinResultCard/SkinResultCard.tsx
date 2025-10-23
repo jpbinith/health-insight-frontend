@@ -201,7 +201,9 @@ export function SkinResultCard({
     .filter(Boolean)
     .join(' ');
 
-  const formattedConfidence = `${Math.round(confidence)}% Confidence`;
+  const formattedConfidence = Number.isFinite(confidence)
+    ? `${Number(confidence.toFixed(2)).toString()}% Confidence`
+    : 'Confidence unavailable';
   const galleryViewportClassName = 'skin-result-card__gallery skin-result-card__gallery--scroll';
   const galleryItems = galleryImages.map((image, index) => (
     <div className="skin-result-card__gallery-item" role="listitem" key={`${image.src}-${index}`}>

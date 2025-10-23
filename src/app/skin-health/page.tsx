@@ -42,11 +42,39 @@ const normalizeAnalysisResponse = (payload: unknown): SkinAnalysisResult[] => {
     }
 
     const record = item as Record<string, unknown>;
-    const rawConfidence = record.confidence ?? record.score ?? record.probability;
+
+    const confidenceCandidates: unknown[] = [
+      record.confidence,
+      record.confidenceScore,
+      (record as Record<string, unknown>)['confidence_score'],
+      record.score,
+      record.probability,
+    ];
+
     let confidence = 0;
 
-    if (typeof rawConfidence === 'number') {
-      confidence = rawConfidence > 1 ? Math.round(rawConfidence) : Math.round(rawConfidence * 100);
+    for (const candidate of confidenceCandidates) {
+      if (candidate === undefined || candidate === null) {
+        continue;
+      }
+
+      let numericValue: number | null = null;
+
+      if (typeof candidate === 'number') {
+        numericValue = candidate;
+      } else if (typeof candidate === 'string') {
+        const sanitized = candidate.replace(/%/g, '').trim();
+        const parsed = Number.parseFloat(sanitized);
+        if (!Number.isNaN(parsed)) {
+          numericValue = parsed;
+        }
+      }
+
+      if (numericValue !== null && Number.isFinite(numericValue)) {
+        confidence =
+          numericValue > 0 && numericValue < 1 ? numericValue * 100 : numericValue;
+        break;
+      }
     }
 
     const rawSymptoms = record.symptoms;
