@@ -1,20 +1,26 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { SkinResultCard } from '../../../components/SkinResultCard/SkinResultCard';
+import { createDiseaseHistory } from 'web/lib/api/diseaseHistory';
 import type { SkinAnalysisResult } from 'web/lib/api/skinAnalysis';
+import { useAppSelector } from 'web/lib/state/hooks';
 
 const uploadedImagePlaceholder = '/skin-placeholder.svg';
+const PENDING_HISTORY_SAVE_KEY = 'skin-health-pending-history-save';
 
 export default function SkinHealthResultsPage() {
   const router = useRouter();
+  const { token, user } = useAppSelector((state) => state.auth);
   const [results, setResults] = useState<SkinAnalysisResult[]>([]);
   const [expandedConditionId, setExpandedConditionId] = useState<string | null>(null);
   const [uploadedImageSrc, setUploadedImageSrc] = useState<string | null>(null);
   const [isLoadingResults, setIsLoadingResults] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -68,6 +74,90 @@ export default function SkinHealthResultsPage() {
     }
     router.push('/skin-health');
   };
+
+  const convertPreviewToFile = useCallback(async () => {
+    if (!uploadedImageSrc) {
+      throw new Error('No analysis image available to save.');
+    }
+
+    const response = await fetch(uploadedImageSrc);
+    if (!response.ok) {
+      throw new Error('Unable to retrieve the analysis image for saving.');
+    }
+
+    const blob = await response.blob();
+    const mimeType = blob.type || 'image/png';
+    const extension = mimeType.split('/')[1] ?? 'png';
+    const fileName = `skin-analysis-${Date.now()}.${extension}`;
+
+    return new File([blob], fileName, { type: mimeType });
+  }, [uploadedImageSrc]);
+
+  const handleSaveAnalysis = useCallback(async () => {
+    if (!results.length) {
+      setSaveError('No analysis results are available to save.');
+      return;
+    }
+
+    if (!uploadedImageSrc) {
+      setSaveError('Analysis image is unavailable. Please re-run the analysis.');
+      return;
+    }
+
+    if (!token) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(PENDING_HISTORY_SAVE_KEY, 'true');
+      }
+      router.push('/login?redirect=/skin-health/results');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+
+      const imageFile = await convertPreviewToFile();
+
+      const diseases = results.map((result) => ({
+        conditionId: result.id,
+        confidence: result.confidence,
+      }));
+
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      formData.append('diseases', JSON.stringify(diseases));
+      formData.append('occurredAt', new Date().toISOString());
+
+      await createDiseaseHistory(formData);
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(PENDING_HISTORY_SAVE_KEY);
+        sessionStorage.removeItem('skin-health-analysis-results');
+        sessionStorage.removeItem('skin-health-upload-preview');
+      }
+
+      router.push('/history');
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to save your analysis history. Please try again.',
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }, [convertPreviewToFile, results, router, token]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const pendingSave = sessionStorage.getItem(PENDING_HISTORY_SAVE_KEY);
+    if (pendingSave && token && results.length > 0 && uploadedImageSrc && !isSaving) {
+      sessionStorage.removeItem(PENDING_HISTORY_SAVE_KEY);
+      void handleSaveAnalysis();
+    }
+  }, [handleSaveAnalysis, isSaving, results.length, token, uploadedImageSrc]);
 
   return (
     <section className="analysis-page skin-results">
@@ -143,7 +233,12 @@ export default function SkinHealthResultsPage() {
         </section>
 
         <div className="skin-results__actions">
-          <button type="button" className="skin-results__cta skin-results__cta--primary">
+          <button
+            type="button"
+            className="skin-results__cta skin-results__cta--primary"
+            onClick={handleSaveAnalysis}
+            disabled={isSaving || results.length === 0}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -158,7 +253,7 @@ export default function SkinHealthResultsPage() {
               <path d="M9 13h6" />
               <path d="M12 10v6" />
             </svg>
-            Save Analysis
+            {isSaving ? 'Saving…' : 'Save Analysis'}
           </button>
           <button
             type="button"
@@ -181,6 +276,8 @@ export default function SkinHealthResultsPage() {
             Analyze Another Image
           </button>
         </div>
+
+        {saveError ? <p className="skin-results__error">{saveError}</p> : null}
 
         <p className="analysis-page__disclaimer skin-results__disclaimer">
           <strong>Disclaimer:</strong> HealthSight provides informational insights and is not a substitute for professional

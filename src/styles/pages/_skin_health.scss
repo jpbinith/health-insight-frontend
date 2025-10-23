@@ -69,6 +69,16 @@
   margin: 0 auto;
 }
 
+.skin-results__error {
+  margin: 1rem auto 0;
+  max-width: 32rem;
+  color: colors.$color-error;
+  background-color: colors.$color-error-soft;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+}
+
 .skin-results__cta {
   display: inline-flex;
   align-items: center;
