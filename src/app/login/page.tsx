@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ChangeEvent,
   FormEvent,
@@ -34,6 +34,10 @@ const initialState: LoginFormState = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
+  const redirectTarget =
+    redirectParam && redirectParam.startsWith('/') ? redirectParam : '/';
   const dispatch = useAppDispatch();
   const rememberFromStore = useAppSelector((state) => state.auth.remember);
   const [formState, setFormState] = useState<LoginFormState>({
@@ -114,9 +118,9 @@ export default function LoginPage() {
         user: userProfile,
       });
 
-      setSuccessMessage('Logged in successfully. Redirecting to your dashboard...');
+      setSuccessMessage('Logged in successfully. Redirecting...');
       redirectTimeoutRef.current = setTimeout(() => {
-        router.push('/');
+        router.push(redirectTarget);
       }, 1200);
     } catch (error) {
       if (error instanceof ConfigurationError) {

@@ -2,45 +2,52 @@
 
 import { apiClient } from './client';
 
-export type LoginPayload = {
+export type GetRootResponse = string;
+
+export interface LoginRequest {
   email: string;
   password: string;
-};
+}
 
-export type LoginResponse = {
+export interface LoginResponse {
   accessToken: string;
-  refreshToken?: string;
-  user?: {
-    id?: string;
-    fullName?: string;
-    email?: string;
-    [key: string]: unknown;
+  tokenType: 'Bearer';
+  expiresIn: number;
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
   };
-  [key: string]: unknown;
-};
+}
+
+export type LoginPayload = LoginRequest;
 
 export const login = (payload: LoginPayload) =>
   apiClient.post<LoginResponse, LoginPayload>('/auth/login', payload);
 
-export type ForgotPasswordPayload = {
+export interface ForgotPasswordRequest {
   email: string;
-};
+}
 
-export type ForgotPasswordResponse = {
-  message?: string;
-};
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export type ForgotPasswordPayload = ForgotPasswordRequest;
 
 export const requestPasswordReset = (payload: ForgotPasswordPayload) =>
   apiClient.post<ForgotPasswordResponse, ForgotPasswordPayload>('/auth/forgot-password', payload);
 
-export type ResetPasswordPayload = {
+export interface ResetPasswordRequest {
   token: string;
   password: string;
-};
+}
 
-export type ResetPasswordResponse = {
-  message?: string;
-};
+export interface ResetPasswordResponse {
+  message: string;
+}
+
+export type ResetPasswordPayload = ResetPasswordRequest;
 
 export const resetPassword = (payload: ResetPasswordPayload) =>
   apiClient.post<ResetPasswordResponse, ResetPasswordPayload>('/auth/reset-password', payload);

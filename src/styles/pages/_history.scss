@@ -1,0 +1,283 @@
+@use '../settings/colors' as colors;
+@use '../settings/typography' as type;
+
+.history-page {
+  padding: clamp(3rem, 6vw, 4.5rem) 1.5rem 4rem;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.04) 0%, rgba(15, 23, 42, 0.02) 100%);
+}
+
+.history-page__inner {
+  width: min(960px, 100%);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 3.25rem);
+}
+
+.history-page__intro {
+  display: grid;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.history-page__error {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  background: colors.$color-error-soft;
+  color: colors.$color-error;
+  font-size: 0.95rem;
+}
+
+.history-page__empty {
+  text-align: center;
+  color: colors.$color-text-secondary;
+  padding: 2rem 1rem;
+  border-radius: 1.4rem;
+  background: rgba(colors.$color-text-primary, 0.04);
+}
+
+.history-page__eyebrow {
+  font-size: 0.95rem;
+  color: colors.$color-text-secondary;
+  letter-spacing: 0.02em;
+}
+
+.history-page__title {
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: type.$font-weight-semibold;
+  color: colors.$color-text-primary;
+}
+
+.history-page__list {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.history-entry {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: clamp(1rem, 3vw, 1.5rem);
+  background: colors.$color-surface-light;
+  border-radius: 1.75rem;
+  padding: clamp(1.15rem, 3vw, 1.5rem);
+  box-shadow: 0 24px 48px -32px rgba(15, 23, 42, 0.18);
+  align-items: center;
+}
+
+.history-entry__media {
+  position: relative;
+  width: 92px;
+  aspect-ratio: 1;
+  border-radius: 1.1rem;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.history-entry__media--peach {
+  background: linear-gradient(135deg, #ffd5c8 0%, #ffb8c6 100%);
+}
+
+.history-entry__media--sand {
+  background: linear-gradient(135deg, #f6e3c8 0%, #f1d6ac 100%);
+}
+
+.history-entry__media--rose {
+  background: linear-gradient(135deg, #f4c3d6 0%, #f0a9c0 100%);
+}
+
+.history-entry__image {
+  object-fit: cover;
+}
+
+.history-entry__details {
+  display: grid;
+  gap: 0.35rem;
+  text-align: left;
+}
+
+.history-entry__date {
+  font-size: 0.9rem;
+  color: colors.$color-text-secondary;
+}
+
+.history-entry__summary {
+  font-size: 1.075rem;
+  font-weight: type.$font-weight-semibold;
+  color: colors.$color-text-primary;
+  letter-spacing: -0.01em;
+}
+
+.history-entry__confidence {
+  font-size: 0.95rem;
+  font-weight: type.$font-weight-medium;
+}
+
+.history-entry__confidence--strong {
+  color: #2563eb;
+}
+
+.history-entry__confidence--moderate {
+  color: #2563eb;
+  opacity: 0.85;
+}
+
+.history-entry__confidence--low {
+  color: colors.$color-text-secondary;
+}
+
+.history-entry__cta {
+  white-space: nowrap;
+}
+
+.history-page__load-more {
+  justify-self: center;
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: type.$font-weight-medium;
+  background: rgba(148, 163, 184, 0.32);
+  color: colors.$color-text-primary;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.history-page__load-more:hover,
+.history-page__load-more:focus-visible {
+  background: rgba(148, 163, 184, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px -20px rgba(15, 23, 42, 0.45);
+}
+
+.history-page__load-more:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.35);
+}
+
+.history-page__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.history-page__page-button {
+  border: none;
+  background: transparent;
+  color: colors.$color-primary;
+  font-weight: type.$font-weight-medium;
+  cursor: pointer;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.history-page__page-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.history-page__page-button:not(:disabled):hover,
+.history-page__page-button:not(:disabled):focus-visible {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.history-page__page-steps {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.history-page__page-number {
+  min-width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  border: none;
+  background: rgba(59, 130, 246, 0.12);
+  color: colors.$color-primary;
+  font-weight: type.$font-weight-medium;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.history-page__page-number--active,
+.history-page__page-number:not(:disabled):hover,
+.history-page__page-number:not(:disabled):focus-visible {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: colors.$color-text-inverted;
+  transform: translateY(-1px);
+}
+
+.history-page__page-number:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.history-page__page-ellipsis {
+  color: colors.$color-text-secondary;
+  font-size: 0.95rem;
+  padding-inline: 0.25rem;
+}
+
+.history-page__footer {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.history-page__page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: colors.$color-text-secondary;
+  font-size: 0.95rem;
+}
+
+.history-page__page-size select {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 0.35rem 0.8rem;
+  background: colors.$color-surface-light;
+  color: colors.$color-text-primary;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-width: 4.5rem;
+}
+
+.history-page__page-size select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+@media (max-width: 620px) {
+  .history-page__footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .history-page__pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 720px) {
+  .history-entry {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
+  }
+
+  .history-entry__details {
+    text-align: center;
+  }
+
+  .history-entry__cta {
+    width: 100%;
+    justify-content: center;
+  }
+}
