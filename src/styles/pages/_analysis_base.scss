@@ -140,6 +140,15 @@
   }
 }
 
+.analysis-card__error {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: colors.$color-error;
+  background-color: colors.$color-error-soft;
+  padding: 0.75rem 1rem;
+  border-radius: 0.9rem;
+}
+
 .analysis-page__disclaimer {
   font-size: 0.88rem;
   color: colors.$color-text-secondary;

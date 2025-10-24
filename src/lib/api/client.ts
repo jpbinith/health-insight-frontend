@@ -1,5 +1,7 @@
 'use client';
 
+import { loadStoredAuthToken } from 'web/lib/auth/tokenStorage';
+
 export class ConfigurationError extends Error {
   constructor(message: string) {
     super(message);
@@ -67,6 +69,13 @@ async function request<TResponse>(
 
   if (!mergedHeaders.has('Accept')) {
     mergedHeaders.set('Accept', 'application/json');
+  }
+
+  if (!mergedHeaders.has('Authorization')) {
+    const token = loadStoredAuthToken();
+    if (token) {
+      mergedHeaders.set('Authorization', `Bearer ${token}`);
+    }
   }
 
   const hasBody = init.body !== undefined && init.body !== null;
