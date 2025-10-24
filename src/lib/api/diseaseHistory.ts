@@ -44,15 +44,20 @@ export interface DiseaseHistoryListResponse {
   total: number;
   data: Array<{
     historyId: string;
-    diseases: Array<{
-      conditionId: string;
-      confidence: number;
-      imageUrl: string;
-    }>;
     imageUrl: string;
     occurredAt: string;
     createdAt: string;
     updatedAt: string;
+    results: Array<{
+      id: string;
+      title: string;
+      label: 'Top Match' | `Prediction #${number}`;
+      confidence: number;
+      description: string;
+      symptoms: string[];
+      galleryImages: Array<{ src: string; alt: string | null }>;
+      isTopMatch?: boolean;
+    }>;
   }>;
 }
 

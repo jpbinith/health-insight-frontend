@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { SkinResultCard } from '../../../components/SkinResultCard/SkinResultCard';
 import { createDiseaseHistory } from 'web/lib/api/diseaseHistory';
@@ -14,6 +14,9 @@ const PENDING_HISTORY_SAVE_KEY = 'skin-health-pending-history-save';
 
 export default function SkinHealthResultsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const modeParam = searchParams.get('mode') ?? searchParams.get('history');
+  const isHistoryMode = useMemo(() => Boolean(modeParam), [modeParam]);
   const { token, user } = useAppSelector((state) => state.auth);
   const [results, setResults] = useState<SkinAnalysisResult[]>([]);
   const [expandedConditionId, setExpandedConditionId] = useState<string | null>(null);
@@ -42,9 +45,34 @@ export default function SkinHealthResultsPage() {
     try {
       const storedResults = sessionStorage.getItem('skin-health-analysis-results');
       if (storedResults) {
-        const parsed = JSON.parse(storedResults) as SkinAnalysisResult[];
+        const parsed = JSON.parse(storedResults) as unknown;
+        const resultsArray: SkinAnalysisResult[] = Array.isArray(parsed)
+          ? parsed.map((entry, index) => {
+              if (entry && typeof entry === 'object' && 'results' in entry) {
+                const historyEntry = entry as {
+                  results: SkinAnalysisResult[];
+                };
+                if (Array.isArray(historyEntry.results) && historyEntry.results.length > 0) {
+                  return historyEntry.results[0];
+                }
+              }
+              if (entry && typeof entry === 'object' && 'id' in entry && 'confidence' in entry) {
+                return entry as SkinAnalysisResult;
+              }
+              return {
+                id: `history-${index}`,
+                label: index === 0 ? 'Top Match' : `Prediction #${index + 1}`,
+                title: `Prediction #${index + 1}`,
+                confidence: 0,
+                description: '',
+                symptoms: [],
+                galleryImages: [],
+                isTopMatch: index === 0,
+              };
+            })
+          : [];
         if (Array.isArray(parsed)) {
-          const normalized = parsed.map((result, index) => ({
+          const normalized = resultsArray.map((result, index) => ({
             ...result,
             isTopMatch: index === 0,
           }));
@@ -207,12 +235,7 @@ export default function SkinHealthResultsPage() {
                     src: image.src,
                     alt: image.alt ?? condition.title,
                   }))
-                : [
-                    {
-                      src: uploadedImageSrc ?? uploadedImagePlaceholder,
-                      alt: condition.title,
-                    },
-                  ];
+                : [];
 
               return (
                 <SkinResultCard
@@ -237,7 +260,7 @@ export default function SkinHealthResultsPage() {
             type="button"
             className="skin-results__cta skin-results__cta--primary"
             onClick={handleSaveAnalysis}
-            disabled={isSaving || results.length === 0}
+            disabled={isSaving || results.length === 0 || isHistoryMode}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

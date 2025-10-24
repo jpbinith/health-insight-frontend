@@ -86,7 +86,17 @@ export default function HistoryPage() {
 
         <div className="history-page__list" role="list">
           {entries.map((entry) => (
-            <article className="history-entry" key={entry.historyId} role="listitem">
+            <article
+              className="history-entry"
+              key={entry.historyId}
+              role="listitem"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  sessionStorage.setItem('skin-health-analysis-results', JSON.stringify(entry.results));
+                  sessionStorage.setItem('skin-health-upload-preview', entry.imageUrl);
+                }
+              }}
+            >
               <div className="history-entry__media history-entry__media--peach">
                 <Image
                   src={entry.imageUrl || '/skin-placeholder.svg'}
@@ -105,18 +115,30 @@ export default function HistoryPage() {
                   })}
                 </span>
                 <p className="history-entry__summary">
-                  {entry.diseases[0]?.conditionId ? `Primary Prediction: ${entry.diseases[0].conditionId}` : 'Analysis Snapshot'}
+                  {entry.results[0]?.title ? entry.results[0].title : 'Analysis Snapshot'}
                 </p>
-                {entry.diseases.map((disease) => (
+                {entry.results.map((result) => (
                   <span
-                    key={`${entry.historyId}-${disease.conditionId}`}
-                    className={`history-entry__confidence ${getConfidenceTone(disease.confidence)}`}
+                    key={`${entry.historyId}-${result.id}`}
+                    className={`history-entry__confidence ${getConfidenceTone(result.confidence)}`}
                   >
-                    {disease.confidence}% Confidence · {disease.conditionId}
+                    {result.confidence}% Confidence · {result.title}
                   </span>
                 ))}
               </div>
-              <Button variant="primary" icon="arrow" className="history-entry__cta" href={`/skin-health/results/${entry.historyId}`}>
+              <Button
+                variant="primary"
+                icon="arrow"
+                className="history-entry__cta"
+                href={`/skin-health/results?history=${entry.historyId}`}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('skin-health-analysis-results', JSON.stringify(entry.results));
+                    sessionStorage.setItem('skin-health-upload-preview', entry.imageUrl);
+                    sessionStorage.setItem('skin-health-results-mode', 'history');
+                  }
+                }}
+              >
                 View Full Result
               </Button>
             </article>
