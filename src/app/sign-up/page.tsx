@@ -15,6 +15,8 @@ type SignUpFormState = {
   acceptTerms: boolean;
 };
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function SignUpPage() {
   const router = useRouter();
   const redirectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -48,6 +50,34 @@ export default function SignUpPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const trimmedName = formState.fullName.trim();
+    const trimmedEmail = formState.email.trim();
+
+    if (!trimmedName) {
+      setErrorMessage('Please enter your full name.');
+      return;
+    }
+
+    if (!trimmedEmail) {
+      setErrorMessage('Email is required.');
+      return;
+    }
+
+    if (!emailPattern.test(trimmedEmail)) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+
+    if (!formState.password) {
+      setErrorMessage('Password is required.');
+      return;
+    }
+
+    if (formState.password.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long.');
+      return;
+    }
+
     if (formState.password !== formState.confirmPassword) {
       setErrorMessage('Passwords do not match.');
       return;
@@ -64,8 +94,8 @@ export default function SignUpPage() {
 
     try {
       await createUser({
-        fullName: formState.fullName.trim(),
-        email: formState.email.trim(),
+        fullName: trimmedName,
+        email: trimmedEmail,
         password: formState.password,
       });
 
