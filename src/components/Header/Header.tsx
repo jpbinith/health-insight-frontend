@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 import { Button } from '../Button/Button';
 import { useAppSelector } from 'web/lib/state/hooks';
@@ -58,8 +59,10 @@ export function Header() {
   const logout = useLogout();
   const { token, user } = useAppSelector((state) => state.auth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const lastKnownUserRef = useRef<typeof user>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (user) {
@@ -95,6 +98,14 @@ export function Header() {
     setIsMenuOpen(false);
   }, []);
 
+  const toggleMobileNav = useCallback(() => {
+    setIsMobileNavOpen((prev) => !prev);
+  }, []);
+
+  const closeMobileNav = useCallback(() => {
+    setIsMobileNavOpen(false);
+  }, []);
+
   useEffect(() => {
     if (!isMenuOpen) {
       return;
@@ -121,6 +132,10 @@ export function Header() {
     };
   }, [closeMenu, isMenuOpen]);
 
+  useEffect(() => {
+    closeMobileNav();
+  }, [closeMobileNav, pathname]);
+
   const navItems = useMemo(() => {
     if (token) {
       return [...baseNavItems, { label: 'History', href: '/history' }];
@@ -134,14 +149,28 @@ export function Header() {
         <Link href="/" className="c-header__brand">
           HealthSight
         </Link>
-        <nav className="c-header__nav" aria-label="Primary navigation">
+        <button
+          type="button"
+          className="c-header__mobile-toggle"
+          aria-label="Toggle navigation"
+          aria-expanded={isMobileNavOpen}
+          aria-controls="header-mobile-panel"
+          onClick={toggleMobileNav}
+        >
+          <span className="c-header__mobile-icon" aria-hidden="true">
+            <span className="c-header__mobile-bar" />
+            <span className="c-header__mobile-bar" />
+            <span className="c-header__mobile-bar" />
+          </span>
+        </button>
+        <nav className="c-header__nav c-header__nav--desktop" aria-label="Primary navigation">
           {navItems.map((item) => (
             <Link key={item.label} className="c-header__nav-link" href={item.href}>
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="c-header__actions">
+        <div className="c-header__actions c-header__actions--desktop">
           {token ? (
             <div className="c-header__session" ref={menuRef}>
               <button
@@ -190,6 +219,53 @@ export function Header() {
                 Sign up
               </Button>
             </>
+          )}
+        </div>
+        <div
+          id="header-mobile-panel"
+          className={`c-header__mobile-panel${isMobileNavOpen ? ' c-header__mobile-panel--open' : ''}`}
+        >
+          <nav className="c-header__mobile-nav" aria-label="Mobile navigation">
+            {navItems.map((item) => (
+              <Link
+                key={`mobile-${item.label}`}
+                className="c-header__mobile-link"
+                href={item.href}
+                onClick={closeMobileNav}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          {token ? (
+            <div className="c-header__mobile-session">
+              <div className="c-header__mobile-session-meta">
+                <span className="c-header__mobile-name">{displayName}</span>
+                {effectiveUser?.email ? (
+                  <span className="c-header__mobile-email">{effectiveUser.email as string}</span>
+                ) : null}
+              </div>
+              <Button
+                as="button"
+                variant="link"
+                onClick={() => {
+                  closeMobileNav();
+                  closeMenu();
+                  logout();
+                }}
+              >
+                Log out
+              </Button>
+            </div>
+          ) : (
+            <div className="c-header__mobile-auth">
+              <Button href="/login" variant="link" isBlock size="sm" onClick={closeMobileNav}>
+                Log in
+              </Button>
+              <Button href="/sign-up" isBlock size="sm" onClick={closeMobileNav}>
+                Sign up
+              </Button>
+            </div>
           )}
         </div>
       </div>
