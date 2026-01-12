@@ -9,14 +9,14 @@ COPY package*.json ./
 RUN npm ci
 
 FROM base AS build
-ARG NEXT_PUBLIC_API_BASE_URL="http://localhost:3000"
+ARG NEXT_PUBLIC_API_BASE_URL="http://eyeinsighthealth.com/api"
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
 FROM base AS runner
-ARG NEXT_PUBLIC_API_BASE_URL="http://localhost:3000"
+ARG NEXT_PUBLIC_API_BASE_URL="http://eyeinsighthealth.com/api"
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 ENV PORT=3001
