@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   title: 'HealthSight - AI Health Insights',
   description:
     'Leverage AI to gain valuable insights into your skin and contribute to eye health research with secure, transparent workflows.',
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default async function RootLayout({
