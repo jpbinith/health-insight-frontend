@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description:
     'Leverage AI to gain valuable insights into your skin and contribute to eye health research with secure, transparent workflows.',
   icons: {
-    icon: '/logo.png',
+    icon: '/logo-zoom.png',
   },
 };
 
