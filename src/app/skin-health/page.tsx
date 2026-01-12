@@ -143,7 +143,7 @@ export default function SkinHealthPage() {
 
         <div className="analysis-card">
           <ImageUploader
-            accept="image/*"
+            accept=".jpg,.jpeg,.png"
             title="Upload Image"
             prompt="Drag & drop your image here, or click to upload"
             helperText="Supports: JPG, JPEG, PNG"

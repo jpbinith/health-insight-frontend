@@ -29,8 +29,11 @@ function mergeClasses(...values: Array<string | undefined | false>) {
   return values.filter(Boolean).join(' ').trim();
 }
 
+const allowedMimeTypes = new Set(['image/jpeg', 'image/png']);
+const allowedExtensions = new Set(['.jpg', '.jpeg', '.png']);
+
 export function ImageUploader({
-  accept = 'image/*',
+  accept = '.jpg,.jpeg,.png',
   multiple = false,
   title,
   prompt,
@@ -48,6 +51,7 @@ export function ImageUploader({
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const updatePreview = (next: string | null) => {
     setPreviewSrc(next);
@@ -61,13 +65,31 @@ export function ImageUploader({
 
   const openFileDialog = () => inputRef.current?.click();
 
+  const isAllowedFile = (file: File) => {
+    const extension = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')).toLowerCase() : '';
+    return allowedMimeTypes.has(file.type) || allowedExtensions.has(extension);
+  };
+
   const handleFiles = (incoming: FileList | null) => {
     if (!incoming || incoming.length === 0) {
       return;
     }
 
     const incomingFiles = Array.from(incoming);
-    const next = multiple ? [...files, ...incomingFiles] : [incomingFiles[0]];
+    const validFiles = incomingFiles.filter(isAllowedFile);
+
+    if (validFiles.length === 0) {
+      setFileError('Only JPG, JPEG, and PNG files are supported.');
+      return;
+    }
+
+    setFileError(
+      validFiles.length < incomingFiles.length
+        ? 'Some files were skipped. Only JPG, JPEG, and PNG files are supported.'
+        : null,
+    );
+
+    const next = multiple ? [...files, ...validFiles] : [validFiles[0]];
     updateFiles(next);
 
     if ((showPreviewImage || onPreviewChange) && next[0]) {
@@ -117,6 +139,9 @@ export function ImageUploader({
     if (inputRef.current && next.length === 0) {
       inputRef.current.value = '';
     }
+    if (next.length === 0) {
+      setFileError(null);
+    }
   };
 
   const clearAll = () => {
@@ -125,6 +150,7 @@ export function ImageUploader({
     if (inputRef.current) {
       inputRef.current.value = '';
     }
+    setFileError(null);
   };
 
   const dropzoneShouldHide = hideDropzoneOnSelection && files.length > 0;
@@ -178,6 +204,8 @@ export function ImageUploader({
           {helperText ? <p className="image-upload__helper">{helperText}</p> : null}
         </div>
       ) : null}
+
+      {fileError ? <p className="analysis-card__error image-upload__error">{fileError}</p> : null}
 
       {showPreviewImage && previewSrc ? (
         <div className="image-upload__preview">

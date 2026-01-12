@@ -79,7 +79,7 @@ export function Button({
   }
 
   return (
-    <a className={composedClassName} href={href ?? '#'}>
+    <a className={composedClassName} href={href ?? '#'} onClick={onClick}>
       <span>{children}</span>
       {icon ? iconLookup[icon] : null}
     </a>

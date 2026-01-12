@@ -2,15 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  ChangeEvent,
-  FormEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 import { login } from 'web/lib/api/auth';
 import { ApiError, ConfigurationError } from 'web/lib/api/client';
@@ -31,6 +23,8 @@ const initialState: LoginFormState = {
   password: '',
   remember: false,
 };
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,16 +59,16 @@ export default function LoginPage() {
     }));
   }, []);
 
-  const isFormValid = useMemo(
-    () => formState.email.trim() !== '' && formState.password.trim().length >= 8,
-    [formState.email, formState.password]
-  );
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!isFormValid) {
-      setErrorMessage('Please provide a valid email and password (minimum 8 characters).');
+    if (!formState.email.trim() || !formState.password.trim()) {
+      setErrorMessage('Email and password are required.');
+      return;
+    }
+
+    if (!emailPattern.test(formState.email.trim())) {
+      setErrorMessage('Please enter a valid email address.');
       return;
     }
 
@@ -182,7 +176,6 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={formState.password}
                 onChange={updateField}
-                minLength={8}
                 required
               />
             </div>

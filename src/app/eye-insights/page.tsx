@@ -141,7 +141,7 @@ export default function EyeInsightsPage() {
         <div className="analysis-card eye-insights__card">
           <ImageUploader
             key={uploaderKey}
-            accept="image/*"
+            accept=".jpg,.jpeg,.png"
             title="Upload Image"
             prompt="Drag and drop or click to upload"
             helperText="Supports: JPG, JPEG, PNG"
